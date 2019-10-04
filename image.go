@@ -4,11 +4,11 @@ import "fmt"
 
 type image struct {
 	path  string
-	props *TextProp
+	props *ImageProp
 }
 
 func (s *image) Apply() {
-
+	fmt.Println("Applying image")
 }
 
 func (s *image) PrintNodes() {

@@ -8,7 +8,7 @@ type text struct {
 }
 
 func (s *text) Apply() {
-
+	fmt.Println("Applying text")
 }
 
 func (s *text) PrintNodes() {

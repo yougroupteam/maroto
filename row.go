@@ -4,12 +4,22 @@ import "fmt"
 
 // Row
 type row struct {
-	cols []col
+	height float64
+	cols   []col
 }
 
-func Row(cols ...col) row {
+func (s *row) GetHeight() float64 {
+	return s.height
+}
+
+func (s *row) QtdCols() int {
+	return len(s.cols)
+}
+
+func Row(height float64, cols ...col) row {
 	return row{
-		cols: cols,
+		height: height,
+		cols:   cols,
 	}
 }
 
