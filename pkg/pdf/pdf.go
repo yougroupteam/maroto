@@ -170,7 +170,7 @@ func (s *PdfMaroto) AddPage() {
 	maxOffsetPage := int(pageHeight - bottom - top)
 
 	s.Row(float64(maxOffsetPage-totalOffsetY), func() {
-		s.ColSpace(12)
+		s.ColSpace(48)
 	})
 }
 
@@ -358,10 +358,10 @@ func (s *PdfMaroto) Row(height float64, closure func()) {
 // components inside.
 func (s *PdfMaroto) Col(width uint, closure func()) {
 	if width == 0 {
-		width = 12
+		width = 48
 	}
 
-	percent := float64(width) / float64(12)
+	percent := float64(width) / float64(48)
 
 	pageWidth, _ := s.Pdf.GetPageSize()
 	left, _, right, _ := s.Pdf.GetMargins()
@@ -562,7 +562,7 @@ func (s *PdfMaroto) footer() {
 	maxOffsetPage := int(pageHeight - bottom - top)
 
 	s.Row(float64(maxOffsetPage-totalOffsetY), func() {
-		s.ColSpace(12)
+		s.ColSpace(48)
 	})
 
 	if s.footerClosure != nil {
@@ -577,7 +577,7 @@ func (s *PdfMaroto) header() {
 	s.SetBackgroundColor(color.NewWhite())
 
 	s.Row(s.marginTop, func() {
-		s.ColSpace(12)
+		s.ColSpace(48)
 	})
 
 	if s.headerClosure != nil {
