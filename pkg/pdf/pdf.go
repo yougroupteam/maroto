@@ -53,6 +53,8 @@ type Maroto interface {
 
 	// Fonts
 	AddUTF8Font(familyStr string, styleStr consts.Style, fileStr string)
+	AddUTF8FontFromBytes(familyStr string, styleStr consts.Style, utf8Bytes []byte)
+	AddFontFromBytes(familyStr string, styleStr consts.Style, jsonFileBytes, zFileBytes []byte)
 	SetProtection(actionFlag byte, userPassStr, ownerPassStr string)
 	SetDefaultFontFamily(fontFamily string)
 	GetDefaultFontFamily() string
@@ -511,6 +513,14 @@ func (s *PdfMaroto) Output() (bytes.Buffer, error) {
 // styleStr is the style of the font and fileStr is the path to the .ttf file.
 func (s *PdfMaroto) AddUTF8Font(familyStr string, styleStr consts.Style, fileStr string) {
 	s.Pdf.AddUTF8Font(familyStr, string(styleStr), fileStr)
+}
+
+func (s *PdfMaroto) AddUTF8FontFromBytes(familyStr string, styleStr consts.Style, utf8Bytes []byte) {
+	s.Pdf.AddUTF8FontFromBytes(familyStr, string(styleStr), utf8Bytes)
+}
+
+func (s *PdfMaroto) AddFontFromBytes(familyStr string, styleStr consts.Style, jsonFileBytes, zFileBytes []byte) {
+	s.Pdf.AddFontFromBytes(familyStr, string(styleStr), jsonFileBytes, zFileBytes)
 }
 
 // SetProtection define a password to open the pdf

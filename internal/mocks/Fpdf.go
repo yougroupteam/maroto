@@ -27,6 +27,10 @@ func (_m *Fpdf) AddFontFromBytes(familyStr string, styleStr string, jsonFileByte
 	_m.Called(familyStr, styleStr, jsonFileBytes, zFileBytes)
 }
 
+func (_m *Fpdf) AddUTF8FontFromBytes(familyStr string, styleStr string, utf8Bytes []byte) {
+	_m.Called(familyStr, styleStr, utf8Bytes)
+}
+
 // AddFontFromReader provides a mock function with given fields: familyStr, styleStr, r
 func (_m *Fpdf) AddFontFromReader(familyStr string, styleStr string, r io.Reader) {
 	_m.Called(familyStr, styleStr, r)
