@@ -555,6 +555,7 @@ func (s *PdfMaroto) drawLastFooter() {
 
 		if s.offsetY+s.footerHeight < pageHeight-bottom-top {
 			s.headerFooterContextActive = true
+			s.Row(pageHeight-bottom-top-s.offsetY-s.footerHeight, func() {})
 			s.footerClosure()
 			s.headerFooterContextActive = false
 		}
