@@ -16,7 +16,9 @@ type Maroto interface {
 	// Grid System
 	Row(height float64, closure func())
 	Col(width uint, closure func())
+	ColByRatio(widthRatio float64, closure func())
 	ColSpace(gridSize uint)
+	ColSpaceByRatio(widthRatio float64)
 
 	// Registers
 	RegisterHeader(closure func())
@@ -378,9 +380,34 @@ func (s *PdfMaroto) Col(width uint, closure func()) {
 	s.xColOffset += s.colWidth
 }
 
+// ColByRatio creates a column with a given width ratio inside a row.
+// Ensure widthRatio is between 0 and 1.
+func (s *PdfMaroto) ColByRatio(widthRatio float64, closure func()) {
+	if widthRatio <= 0 || widthRatio > 1.0 {
+		widthRatio = 1.0
+	}
+
+	pageWidth, _ := s.Pdf.GetPageSize()
+	left, _, right, _ := s.Pdf.GetMargins()
+	widthPerCol := (pageWidth - right - left) * widthRatio
+
+	s.colWidth = widthPerCol
+	s.createColSpace(widthPerCol)
+
+	// This closure has the components to be executed
+	closure()
+
+	s.xColOffset += s.colWidth
+}
+
 // ColSpace create an empty column inside a row.
 func (s *PdfMaroto) ColSpace(gridSize uint) {
 	s.Col(gridSize, func() {})
+}
+
+// ColSpaceByRatio create an empty column with a given width ratio inside a row.
+func (s *PdfMaroto) ColSpaceByRatio(widthRatio float64) {
+	s.ColByRatio(widthRatio, func() {})
 }
 
 // Text create a text inside a cell.
