@@ -335,14 +335,16 @@ func (s *PdfMaroto) InternalRow(heightRatio float64, closure func()) {
 		heightRatio = 1.0
 	}
 
-	// This closure has the Cols to be executed
+	// save parent row/column details
 	parentRowHeight := s.rowHeight
 	parentXColOffset := s.xColOffset
 	ParentColWidth := s.colWidth
 	s.rowHeight = parentRowHeight * heightRatio
 
+	// This closure has the Cols to be executed
 	closure()
 
+	// reset parent details
 	s.offsetY += s.rowHeight
 	s.rowHeight = parentRowHeight
 	s.xColOffset = parentXColOffset
