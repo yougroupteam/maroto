@@ -2,6 +2,7 @@ package pdf
 
 import (
 	"bytes"
+
 	"github.com/johnfercher/maroto/internal/fpdf"
 	"github.com/johnfercher/maroto/pkg/color"
 
@@ -15,6 +16,7 @@ import (
 type Maroto interface {
 	// Grid System
 	Row(height float64, closure func())
+	InternalRow(heightRatio float64, closure func())
 	Col(width uint, closure func())
 	ColByRatio(widthRatio float64, closure func())
 	ColSpace(gridSize uint)
@@ -35,6 +37,7 @@ type Maroto interface {
 	Barcode(code string, prop ...props.Barcode) error
 	QrCode(code string, prop ...props.Rect)
 	Signature(label string, prop ...props.Font)
+	CustomLine()
 
 	// File System
 	OutputFileAndClose(filePathName string) error
@@ -296,6 +299,23 @@ func (s *PdfMaroto) GetPageSize() (width float64, height float64) {
 	return s.Pdf.GetPageSize()
 }
 
+// Add a line within a column in the middle
+func (s *PdfMaroto) CustomLine() {
+	cell := internal.Cell{
+		X:      s.xColOffset,
+		Y:      s.offsetY,
+		Width:  s.colWidth,
+		Height: s.rowHeight,
+	}
+
+	left, top, _, _ := s.Pdf.GetMargins()
+
+	lineCenterY := cell.Height / 2
+	cell.Y += lineCenterY
+
+	s.Pdf.Line(cell.X+left, cell.Y+top, cell.X+cell.Width+left, cell.Y+top)
+}
+
 // Line draw a line from margin left to margin right
 // in the currently row.
 func (s *PdfMaroto) Line(spaceHeight float64) {
@@ -307,6 +327,28 @@ func (s *PdfMaroto) Line(spaceHeight float64) {
 			s.Pdf.Line(left, s.offsetY+top+(spaceHeight/2.0), width-right, s.offsetY+top+(spaceHeight/2.0))
 		})
 	})
+}
+
+// InternalRow defines a row within a column.
+func (s *PdfMaroto) InternalRow(heightRatio float64, closure func()) {
+	if heightRatio <= 0 || heightRatio > 1.0 {
+		heightRatio = 1.0
+	}
+
+	// save parent row/column details
+	parentRowHeight := s.rowHeight
+	parentXColOffset := s.xColOffset
+	ParentColWidth := s.colWidth
+	s.rowHeight = parentRowHeight * heightRatio
+
+	// This closure has the Cols to be executed
+	closure()
+
+	// reset parent details
+	s.offsetY += s.rowHeight
+	s.rowHeight = parentRowHeight
+	s.xColOffset = parentXColOffset
+	s.colWidth = ParentColWidth
 }
 
 // Row define a row and enable add columns inside the row.
@@ -394,9 +436,13 @@ func (s *PdfMaroto) ColByRatio(widthRatio float64, closure func()) {
 	s.colWidth = widthPerCol
 	s.createColSpace(widthPerCol)
 
+	// save original y offset to handle internal rows
+	origOffsetY := s.offsetY
 	// This closure has the components to be executed
 	closure()
 
+	// reset y offset to original value befor closure
+	s.offsetY = origOffsetY
 	s.xColOffset += s.colWidth
 }
 
@@ -430,10 +476,23 @@ func (s *PdfMaroto) Text(text string, prop ...props.Text) {
 		textProp.Top = s.rowHeight
 	}
 
+	if textProp.Left > s.colWidth {
+		textProp.Left = s.colWidth
+	}
+
+	if textProp.Right > s.colWidth {
+		textProp.Right = s.colWidth
+	}
+
+	cellWidth := s.colWidth - textProp.Left - textProp.Right
+	if cellWidth < 0 {
+		cellWidth = 0
+	}
+
 	cell := internal.Cell{
-		X:      s.xColOffset,
+		X:      s.xColOffset + textProp.Left,
 		Y:      s.offsetY + textProp.Top,
-		Width:  s.colWidth,
+		Width:  cellWidth,
 		Height: 0,
 	}
 
