@@ -46,6 +46,7 @@ type Maroto interface {
 	QrCode(code string, prop ...props.Rect)
 	DataMatrixCode(code string, prop ...props.Rect)
 	Signature(label string, prop ...props.Font)
+	CustomLine()
 
 	// File System
 	OutputFileAndClose(filePathName string) error
