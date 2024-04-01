@@ -55,6 +55,7 @@ type Maroto interface {
 	// Helpers
 	AddPage()
 	SetBorder(on bool)
+	SetCustomBorder(on bool, sides string)
 	SetBackgroundColor(color color.Color)
 	SetAliasNbPages(alias string)
 	SetFirstPageNb(number int)
@@ -119,6 +120,7 @@ type PdfMaroto struct {
 	calculationMode   bool
 	backgroundColor   color.Color
 	debugMode         bool
+	borderSides       string
 	orientation       consts.Orientation
 	pageSize          consts.PageSize
 	defaultFontFamily string
@@ -300,6 +302,15 @@ func (s *PdfMaroto) SetMaxGridSum(maxGridSum float64) {
 // Draw borders in all columns created.
 func (s *PdfMaroto) SetBorder(on bool) {
 	s.debugMode = on
+}
+
+func (s *PdfMaroto) SetCustomBorder(on bool, sides string) {
+	s.debugMode = on
+
+	s.borderSides = sides
+	if !on {
+		s.borderSides = ""
+	}
 }
 
 // SetBackgroundColor define the background color of the PDF.
@@ -734,6 +745,9 @@ func (s *PdfMaroto) createColSpace(actualWidthPerCol float64) {
 
 	if s.debugMode {
 		border = "1"
+		if s.borderSides != "" {
+			border = s.borderSides
+		}
 	}
 
 	s.Pdf.CellFormat(actualWidthPerCol, s.rowHeight, "", border, 0, "C", !s.backgroundColor.IsWhite(), 0, "")
