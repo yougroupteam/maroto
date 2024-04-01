@@ -7,44 +7,44 @@ import (
 
 // Proportion represents a proportion from a rectangle, example: 16x9, 4x3...
 type Proportion struct {
-	// Width from the rectangle: Barcode, image and etc
+	// Width from the rectangle: Barcode, image and etc.
 	Width float64
-	// Height from the rectangle: Barcode, image and etc
+	// Height from the rectangle: Barcode, image and etc.
 	Height float64
 }
 
-// Barcode represents properties from a barcode inside a cell
+// Barcode represents properties from a barcode inside a cell.
 type Barcode struct {
-	// Left is the space between the left cell boundary to the barcode, if center is false
+	// Left is the space between the left cell boundary to the barcode, if center is false.
 	Left float64
-	// Top is space between the upper cell limit to the barcode, if center is false
+	// Top is space between the upper cell limit to the barcode, if center is false.
 	Top float64
 	// Percent is how much the barcode will occupy the cell,
 	// ex 100%: The barcode will fulfill the entire cell
-	// ex 50%: The greater side from the barcode will have half the size of the cell
+	// ex 50%: The greater side from the barcode will have half the size of the cell.
 	Percent float64
-	// Proportion is the proportion between size of the barcode
+	// Proportion is the proportion between size of the barcode.
 	// Ex: 16x9, 4x3...
 	Proportion Proportion
-	// Center define that the barcode will be vertically and horizontally centralized
+	// Center define that the barcode will be vertically and horizontally centralized.
 	Center bool
 }
 
-// Rect represents properties from a rectangle (Image, QrCode or Barcode) inside a cell
+// Rect represents properties from a rectangle (Image, QrCode or Barcode) inside a cell.
 type Rect struct {
-	// Left is the space between the left cell boundary to the rectangle, if center is false
+	// Left is the space between the left cell boundary to the rectangle, if center is false.
 	Left float64
-	// Top is space between the upper cell limit to the barcode, if center is false
+	// Top is space between the upper cell limit to the barcode, if center is false.
 	Top float64
 	// Percent is how much the rectangle will occupy the cell,
 	// ex 100%: The rectangle will fulfill the entire cell
-	// ex 50%: The greater side from the rectangle will have half the size of the cell
+	// ex 50%: The greater side from the rectangle will have half the size of the cell.
 	Percent float64
-	// Center define that the barcode will be vertically and horizontally centralized
+	// Center define that the barcode will be vertically and horizontally centralized.
 	Center bool
 }
 
-// Text represents properties from a Text inside a cell
+// Text represents properties from a Text inside a cell.
 type Text struct {
 	// Top is the amount of space between the upper cell limit and the text.
 	Top float64
@@ -52,75 +52,106 @@ type Text struct {
 	Left float64
 	// Right is the minimal amount of space between the right cell boundary and the text.
 	Right float64
-	// Family of the text, ex: consts.Arial, helvetica and etc
+	// Family of the text, ex: consts.Arial, helvetica and etc.
 	Family string
-	// Style of the text, ex: consts.Normal, bold and etc
+	// Style of the text, ex: consts.Normal, bold and etc.
 	Style consts.Style
-	// Size of the text
+	// Size of the text.
 	Size float64
-	// Align of the text
+	// Align of the text.
 	Align consts.Align
-	// Extrapolate define if the text will automatically add a new line when
-	// text reach the right cell boundary
+	// Extrapolate define if the text will automatically add a new line when.
+	// text reach the right cell boundary.
 	Extrapolate bool
-	// VerticalPadding define an additional space between lines
+	// VerticalPadding define an additional space between lines.
 	VerticalPadding float64
-	// Color define the font color
+	// Color define the font color.
 	Color color.Color
 }
 
-// Font represents properties from a text
+// Line represents properties from a Line inside a cell.
+type Line struct {
+	// Color define the line color.
+	Color color.Color
+	// Style define the line style (solid, dashed or dotted).
+	Style consts.LineStyle
+	// Width define the line width (it cannot be greater than line height)
+	Width float64
+}
+
+// Font represents properties from a text.
 type Font struct {
-	// Family of the text, ex: consts.Arial, helvetica and etc
+	// Family of the text, ex: consts.Arial, helvetica and etc.
 	Family string
-	// Style of the text, ex: consts.Normal, bold and etc
+	// Style of the text, ex: consts.Normal, bold and etc.
 	Style consts.Style
-	// Size of the text
+	// Size of the text.
 	Size float64
-	// Color define the font color
+	// Color define the font color.
 	Color color.Color
 }
 
-// TableListContent represents properties from a line (header/content) from a TableList
+// TableListContent represents properties from a line (header/content) from a TableList.
 type TableListContent struct {
-	// Family of the text, ex: consts.Arial, helvetica and etc
+	// Family of the text, ex: consts.Arial, helvetica and etc.
 	Family string
-	// Style of the text, ex: consts.Normal, bold and etc
+	// Style of the text, ex: consts.Normal, bold and etc.
 	Style consts.Style
-	// Size of the text
+	// Size of the text.
 	Size float64
+	// Color define the font color.
+	Color color.Color
 	// GridSizes is the custom properties of the size of the grid
 	// the sum of the values cannot be greater than 12, if this
 	// value is not provided the width of all columns will be the
-	// same
+	// same.
 	GridSizes []uint
+	// CellTextColorChangerFunc is a custom function that will be called
+	// before the cell is created and will change the text color
+	// following the logic inside the function
+	CellTextColorChangerFunc func(cellValue string) color.Color
+	// CellTextColorChangerColumnIndex will be used to only run the
+	// function ChangeCellTextColor when the column index matches the
+	// desired index
+	// Must start at 0
+	CellTextColorChangerColumnIndex int
 }
 
-// TableList represents properties from a TableList
+// TableList represents properties from a TableList.
 type TableList struct {
 	// HeaderProp is the custom properties of the text inside
-	// the headers
+	// the headers.
 	HeaderProp TableListContent
 	// ContentProp is the custom properties of the text inside
-	// the contents
+	// the contents.
 	ContentProp TableListContent
-	// Align is the align of the text (header and content) inside the columns
+	// Align is the align of the text (header and content) inside the columns.
 	Align consts.Align
 	// AlternatedBackground define the background color from even rows
 	// i.e rows with index (0, 2, 4, ..., N) will have background colorized,
-	// rows with index (1, 3, 5, ..., N) will not
+	// rows with index (1, 3, 5, ..., N) will not.
 	AlternatedBackground *color.Color
-	// HeaderContentSpace is the space between the header and the contents
+	// HeaderContentSpace is the space between the header and the contents.
 	HeaderContentSpace float64
-	// Line adds a line after every content-row to separate rows. The line's spaceHeight is set to 1.0
+	// VerticalContentPadding define the space between lines in content.
+	VerticalContentPadding float64
+	// Line adds a line after every content-row to separate rows. The line's spaceHeight is set to 1.0.
 	Line bool
+	// LineProp is the custom properties of the line separating the rows
+	LineProp Line
+	// MaxGridSum of a TableList
+	MaxGridSum float64
 }
 
 // MakeValid from Rect will make the properties from a rectangle reliable to fit inside a cell
-// and define default values for a rectangle
+// and define default values for a rectangle.
 func (s *Rect) MakeValid() {
-	if s.Percent <= 0.0 || s.Percent > 100.0 {
-		s.Percent = 100.0
+	minPercentage := 0.0
+	maxPercentage := 100.0
+	minValue := 0.0
+
+	if s.Percent <= minPercentage || s.Percent > maxPercentage {
+		s.Percent = maxPercentage
 	}
 
 	if s.Center {
@@ -128,20 +159,24 @@ func (s *Rect) MakeValid() {
 		s.Top = 0
 	}
 
-	if s.Left < 0.0 {
-		s.Left = 0.0
+	if s.Left < minValue {
+		s.Left = minValue
 	}
 
-	if s.Top < 0.0 {
-		s.Top = 0
+	if s.Top < minValue {
+		s.Top = minValue
 	}
 }
 
 // MakeValid from Barcode will make the properties from a barcode reliable to fit inside a cell
-// and define default values for a barcode
+// and define default values for a barcode.
 func (s *Barcode) MakeValid() {
-	if s.Percent <= 0.0 || s.Percent > 100.0 {
-		s.Percent = 100.0
+	minPercentage := 0.0
+	maxPercentage := 100.0
+	minValue := 0.0
+
+	if s.Percent <= minPercentage || s.Percent > maxPercentage {
+		s.Percent = maxPercentage
 	}
 
 	if s.Center {
@@ -149,12 +184,12 @@ func (s *Barcode) MakeValid() {
 		s.Top = 0
 	}
 
-	if s.Left < 0.0 {
-		s.Left = 0.0
+	if s.Left < minValue {
+		s.Left = minValue
 	}
 
-	if s.Top < 0.0 {
-		s.Top = 0
+	if s.Top < minValue {
+		s.Top = minValue
 	}
 
 	if s.Proportion.Width <= 0 {
@@ -165,15 +200,21 @@ func (s *Barcode) MakeValid() {
 		s.Proportion.Height = 1
 	}
 
-	if s.Proportion.Height > s.Proportion.Width*0.20 {
-		s.Proportion.Height = s.Proportion.Width * 0.20
-	} else if s.Proportion.Height < s.Proportion.Width*0.10 {
-		s.Proportion.Height = s.Proportion.Width * 0.10
+	maxHeightProportionBasedOnWidth := 0.20
+	minHeightProportionBasedOnWidth := 0.10
+
+	if s.Proportion.Height > s.Proportion.Width*maxHeightProportionBasedOnWidth {
+		s.Proportion.Height = s.Proportion.Width * maxHeightProportionBasedOnWidth
+	} else if s.Proportion.Height < s.Proportion.Width*minHeightProportionBasedOnWidth {
+		s.Proportion.Height = s.Proportion.Width * minHeightProportionBasedOnWidth
 	}
 }
 
-// MakeValid from Text define default values for a Text
+// MakeValid from Text define default values for a Text.
 func (s *Text) MakeValid(defaultFamily string) {
+	minValue := 0.0
+	undefinedValue := 0.0
+
 	if s.Family == "" {
 		s.Family = defaultFamily
 	}
@@ -186,20 +227,20 @@ func (s *Text) MakeValid(defaultFamily string) {
 		s.Align = consts.Left
 	}
 
-	if s.Size == 0.0 {
+	if s.Size == undefinedValue {
 		s.Size = 10.0
 	}
 
-	if s.Top < 0.0 {
-		s.Top = 0.0
+	if s.Top < minValue {
+		s.Top = minValue
 	}
 
-	if s.Left < 0.0 {
-		s.Left = 0.0
+	if s.Left < minValue {
+		s.Left = minValue
 	}
 
-	if s.Right < 0.0 {
-		s.Right = 0.0
+	if s.Right < minValue {
+		s.Right = minValue
 	}
 
 	if s.VerticalPadding < 0 {
@@ -207,8 +248,10 @@ func (s *Text) MakeValid(defaultFamily string) {
 	}
 }
 
-// MakeValid from Font define default values for a Signature
+// MakeValid from Font define default values for a Signature.
 func (s *Font) MakeValid(defaultFamily string) {
+	undefinedValue := 0.0
+
 	if s.Family == "" {
 		s.Family = defaultFamily
 	}
@@ -217,12 +260,12 @@ func (s *Font) MakeValid(defaultFamily string) {
 		s.Style = consts.Bold
 	}
 
-	if s.Size == 0.0 {
+	if s.Size == undefinedValue {
 		s.Size = 8.0
 	}
 }
 
-// ToTextProp from Font return a Text based on Font
+// ToTextProp from Font return a Text based on Font.
 func (s *Font) ToTextProp(align consts.Align, top float64, extrapolate bool, verticalPadding float64) Text {
 	textProp := Text{
 		Family:          s.Family,
@@ -240,7 +283,7 @@ func (s *Font) ToTextProp(align consts.Align, top float64, extrapolate bool, ver
 	return textProp
 }
 
-// ToTextProp from Font return a TableListContent based on Font
+// ToTextProp from Font return a TableListContent based on Font.
 func (s *TableListContent) ToTextProp(align consts.Align, top float64, extrapolate bool, verticalPadding float64) Text {
 	textProp := Text{
 		Family:          s.Family,
@@ -250,6 +293,7 @@ func (s *TableListContent) ToTextProp(align consts.Align, top float64, extrapola
 		Top:             top,
 		Extrapolate:     extrapolate,
 		VerticalPadding: verticalPadding,
+		Color:           s.Color,
 	}
 
 	textProp.MakeValid(s.Family)
@@ -257,9 +301,10 @@ func (s *TableListContent) ToTextProp(align consts.Align, top float64, extrapola
 	return textProp
 }
 
-// MakeValid from TableList define default values for a TableList
+// MakeValid from TableList define default values for a TableList.
 func (s *TableList) MakeValid(header []string, defaultFamily string) {
-	if s.HeaderProp.Size == 0.0 {
+	zeroValue := 0.0
+	if s.HeaderProp.Size == zeroValue {
 		s.HeaderProp.Size = 10.0
 	}
 
@@ -271,8 +316,12 @@ func (s *TableList) MakeValid(header []string, defaultFamily string) {
 		s.HeaderProp.Style = consts.Bold
 	}
 
+	if s.MaxGridSum < 0 {
+		s.MaxGridSum = consts.DefaultMaxGridSum
+	}
+
 	if len(s.HeaderProp.GridSizes) == 0 {
-		gridSize := uint(12.0 / len(header))
+		gridSize := uint(s.MaxGridSum / float64(len(header)))
 		s.HeaderProp.GridSizes = []uint{}
 
 		for range header {
@@ -284,7 +333,7 @@ func (s *TableList) MakeValid(header []string, defaultFamily string) {
 		s.Align = consts.Left
 	}
 
-	if s.ContentProp.Size == 0.0 {
+	if s.ContentProp.Size == zeroValue {
 		s.ContentProp.Size = 10.0
 	}
 
@@ -297,7 +346,7 @@ func (s *TableList) MakeValid(header []string, defaultFamily string) {
 	}
 
 	if len(s.ContentProp.GridSizes) == 0 {
-		gridSize := uint(12.0 / len(header))
+		gridSize := uint(s.MaxGridSum / float64(len(header)))
 		s.ContentProp.GridSizes = []uint{}
 
 		for range header {
@@ -305,7 +354,26 @@ func (s *TableList) MakeValid(header []string, defaultFamily string) {
 		}
 	}
 
-	if s.HeaderContentSpace == 0.0 {
+	if s.HeaderContentSpace == zeroValue {
 		s.HeaderContentSpace = 4.0
+	}
+
+	if s.VerticalContentPadding < zeroValue {
+		s.VerticalContentPadding = zeroValue
+	}
+}
+
+// MakeValid from Line define default values for a Line.
+func (s *Line) MakeValid(spaceHeight float64) {
+	if s.Style == "" {
+		s.Style = consts.Solid
+	}
+
+	if s.Width == 0 {
+		s.Width = consts.DefaultLineWidth
+	}
+
+	if s.Width > spaceHeight {
+		s.Width = spaceHeight
 	}
 }

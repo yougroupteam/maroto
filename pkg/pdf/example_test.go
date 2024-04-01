@@ -3,15 +3,17 @@ package pdf_test
 import (
 	"encoding/base64"
 	"fmt"
+	"io/ioutil"
+	"testing"
+	"time"
+
 	"github.com/johnfercher/maroto/pkg/color"
 	"github.com/johnfercher/maroto/pkg/consts"
 	"github.com/johnfercher/maroto/pkg/pdf"
 	"github.com/johnfercher/maroto/pkg/props"
-	"testing"
-	"time"
 )
 
-// ExampleNewMaroto demonstrates how to create maroto
+// ExampleNewMaroto demonstrates how to create maroto.
 func ExampleNewMaroto() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
@@ -21,7 +23,7 @@ func ExampleNewMaroto() {
 	// Do more things and save...
 }
 
-// ExampleNewMaroto demonstrates how to create maroto with custom page size
+// ExampleNewMaroto demonstrates how to create maroto with custom page size.
 func ExampleNewMarotoCustomSize() {
 	m := pdf.NewMarotoCustomSize(consts.Landscape, "C6", "mm", 114.0, 162.0)
 
@@ -31,7 +33,7 @@ func ExampleNewMarotoCustomSize() {
 	// Do more things and save...
 }
 
-// ExamplePdfMaroto_AddPage how to force add a new page
+// ExamplePdfMaroto_AddPage how to force add a new page.
 func ExamplePdfMaroto_AddPage() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
@@ -47,20 +49,31 @@ func ExamplePdfMaroto_Row() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 	rowHeight := 5.0
 
+	// Warning: There is no way to use a row inside a row or a row inside a col.
 	m.Row(rowHeight, func() {
-		// ... Add some columns
+		m.Col(12, func() {
+			// Add a component
+		})
+	})
+
+	// Warning: There is no way to use a row inside a row or a row inside a col.
+	m.Row(rowHeight, func() {
+		m.Col(12, func() {
+			// Add another component
+		})
 	})
 
 	// Do more things and save...
 }
 
 // ExamplePdfMaroto_Col demonstrates how to add
-// an useful column
+// an useful column.
 func ExamplePdfMaroto_Col() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 	rowHeight := 5.0
 
 	// Warning: The sum of all column gridSize cannot extrapolate 12
+	// Warning: There is no way to use a row inside a row or a row inside a col.
 	m.Row(rowHeight, func() {
 		m.Col(12, func() {
 			// Add Image, Text, Signature, QrCode or Barcode...
@@ -68,6 +81,7 @@ func ExamplePdfMaroto_Col() {
 	})
 
 	// Warning: The sum of all column gridSize cannot extrapolate 12
+	// Warning: There is no way to use a row inside a row or a row inside a col.
 	m.Row(rowHeight, func() {
 		m.Col(6, func() {
 			// Add Image, Text, Signature, QrCode or Barcode...
@@ -141,6 +155,7 @@ func ExamplePdfMaroto_RegisterFooter() {
 	// It is important to remember that it is recommended to create Row's and
 	// Col's if necessary.
 	// You have to register the footer immediately after the Maroto
+	// All footers will be rendered at the bottom of all pages
 
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
@@ -166,14 +181,22 @@ func ExamplePdfMaroto_TableList() {
 	// Not passing HeaderProp.Family, make the method use arial.
 	// Not passing HeaderProp.Style, make the method use bold.
 	// Not passing HeaderProp.GridSizes, make the method use an array with same length
+	// Not passing HeaderProp.Color, make the method use a black font
 	// of header array, the values will be perfectly divided to make all columns with the same size.
 	// Not passing Align, make the method to use left.
 	// Not passing ContentProp.Size, make the method use 10.
 	// Not passing ContentProp.Family, make the method use arial.
 	// Not passing ContentProp.Style, make the method use normal.
+	// Not passing ContentProp.Color, make the method use a black font
 	// Not passing Content.GridSizes, make the method use an array with same length
 	// of content array in the first line, the values will be perfectly divided to make all columns with the same size.
 	// Not passing HeaderContentSpace, will make the method use 4.
+	// Not passing VerticalContentPadding, will make the method use 0. This prop cannot be less than 0.
+	// Not passing LineProp.Color will make the method use black (if Line is true).
+	// Not passing LineProp.Width will make the method use 0.1 (if Line is true).
+	// Not passing LineProp.Style will make the method use solid (if Line is true).
+	// Not passing ContentProp.CellTextColorChangerFunc will make the method to no change the cell text color. This prop must be
+	// used with the prop ContentProp.CellTextColorChangerColumnIndex to only change the desired cell text color of a specific column
 
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
@@ -191,10 +214,14 @@ func ExamplePdfMaroto_TableList() {
 			GridSizes: []uint{3, 9},
 		},
 		ContentProp: props.TableListContent{
-			Family:    consts.Courier,
-			Style:     consts.Normal,
-			Size:      10.0,
-			GridSizes: []uint{3, 9},
+			Family:                          consts.Courier,
+			Style:                           consts.Normal,
+			Size:                            10.0,
+			GridSizes:                       []uint{3, 9},
+			CellTextColorChangerColumnIndex: 1,
+			CellTextColorChangerFunc: func(cellValue string) color.Color {
+				return color.NewBlack()
+			},
 		},
 		Align: consts.Center,
 		AlternatedBackground: &color.Color{
@@ -204,6 +231,18 @@ func ExamplePdfMaroto_TableList() {
 		},
 		HeaderContentSpace: 10.0,
 		Line:               false,
+		LineProp: props.Line{
+			Style: consts.Dotted,
+			Width: 0.4,
+		},
+		VerticalContentPadding: 4.0,
+	})
+
+	// TableList have to be used at same level as row
+	m.Row(10, func() {
+		m.Col(12, func() {
+			// Add a component
+		})
 	})
 
 	// Do more things and save...
@@ -214,7 +253,18 @@ func ExamplePdfMaroto_TableList() {
 func ExamplePdfMaroto_Line() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
-	m.Line(1.0)
+	// Not passing Prop.Color make line as black.
+	// Not passing width make width as 0.1.
+	// Not passing style make style as solid.
+	m.Line(1.0, props.Line{
+		Color: color.Color{
+			Red:   255,
+			Green: 100,
+			Blue:  50,
+		},
+		Style: consts.Dotted,
+		Width: 1.0,
+	})
 
 	// Do more things and save...
 }
@@ -229,7 +279,8 @@ func ExamplePdfMaroto_Text() {
 	// Not passing align, makes the method use left.
 	// Not passing extrapolate, makes the method use false.
 	// Not passing color, makes the method use the current color.
-	// Top cannot be less than 0.
+	// Not passing Top, Left, or Right makes the method use 0.0.
+	// Top, Left, and Right cannot be less than 0.
 	// VerticalPadding cannot be less than 0.
 
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
@@ -243,6 +294,8 @@ func ExamplePdfMaroto_Text() {
 				Family:          consts.Courier,
 				Align:           consts.Center,
 				Top:             1.0,
+				Left:            1.0,
+				Right:           1.0,
 				Extrapolate:     false,
 				VerticalPadding: 1.0,
 				Color: color.Color{
@@ -367,6 +420,32 @@ func ExamplePdfMaroto_QrCode() {
 	})
 }
 
+// ExamplePdfMaroto_DataMatrixCode demonstrates how to add
+// a DataMatrixCode inside a Col.
+func ExamplePdfMaroto_DataMatrixCode() {
+	// Passing nil on rectProps makes
+	// the DataMatrixCode fill the context cell.
+	// When center is true, left and top has no effect.
+	// Percent represents the width/height of the DataMatrixCode inside the cell.
+	// i.e. 80 means that the DataMatrixCode will take up 80% of Col's width
+	// When center is false, positioning of the DataMatrixCode can be done through
+	// left and top.
+
+	m := pdf.NewMaroto(consts.Portrait, consts.A4)
+	rowHeight := 5.0
+
+	m.Row(rowHeight, func() {
+		m.Col(12, func() {
+			m.DataMatrixCode("https://godoc.org/github.com/johnfercher/maroto", props.Rect{
+				Left:    5,
+				Top:     5,
+				Center:  false,
+				Percent: 80,
+			})
+		})
+	})
+}
+
 // ExamplePdfMaroto_Signature demonstrates how to add
 // a Signature space inside a col.
 func ExamplePdfMaroto_Signature() {
@@ -411,7 +490,7 @@ func ExamplePdfMaroto_OutputFileAndClose() {
 }
 
 // ExamplePdfMaroto_Output demonstrates how to get a
-// base64 string from PDF
+// base64 string from PDF.
 func ExamplePdfMaroto_Output() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
@@ -424,18 +503,18 @@ func ExamplePdfMaroto_Output() {
 }
 
 // ExamplePdfMaroto_SetBorder demonstrates how to
-// enable the line drawing in every cell
+// enable the line drawing in every cell.
 func ExamplePdfMaroto_SetBorder() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 	m.SetBorder(true)
 
 	// Add some Rows, Cols, Lines and etc...
-	// Here will be drawn borders in every cell
+	// Here will be drawn borders in every cell.
 
 	m.SetBorder(false)
 
 	// Add some Rows, Cols, Lines and etc...
-	// Here will not be drawn borders
+	// Here will not be drawn borders.
 
 	// Do more things and save...
 }
@@ -445,7 +524,7 @@ func ExamplePdfMaroto_SetBorder() {
 func ExamplePdfMaroto_SetFirstPageNb() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
-	// Ths will set first page index to 1
+	// Ths will set first page index to 1.
 	m.SetFirstPageNb(1)
 }
 
@@ -454,10 +533,10 @@ func ExamplePdfMaroto_SetFirstPageNb() {
 func ExamplePdfMaroto_SetAliasNbPages() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
-	// Ths will create placeholder "{nbs}" to use in texts for total count of pages
+	// Ths will create placeholder "{nbs}" to use in texts for total count of pages.
 	m.SetAliasNbPages("{nbs}")
 
-	// This will create a row with full width column and inside it a text that will display the total number of pages
+	// This will create a row with full width column and inside it a text that will display the total number of pages.
 	m.Row(10, func() {
 		m.Col(12, func() {
 			m.Text("Total number of pages: {nbs}")
@@ -476,20 +555,20 @@ func ExamplePdfMaroto_SetBackgroundColor() {
 		Blue:  30,
 	})
 
-	// This Row will be filled with the color
+	// This Row will be filled with the color.
 	m.Row(20, func() {
 		m.Col(12, func() {
-			// Add components
+			// Add components.
 		})
 	})
 
 	m.SetBackgroundColor(color.NewWhite())
-	// Note: The default value is White (255, 255, 255), if maroto see this value it will ignore not will the cell with any color
+	// Note: The default value is White (255, 255, 255), if maroto see this value it will ignore not will the cell with any color.
 
-	// This Row will not be filled with the color
+	// This Row will not be filled with the color.
 	m.Row(20, func() {
 		m.Col(12, func() {
-			// Add components
+			// Add components.
 		})
 	})
 
@@ -497,22 +576,22 @@ func ExamplePdfMaroto_SetBackgroundColor() {
 }
 
 // ExamplePdfMaroto_GetBorder demonstrates how to
-// obtain the actual borders status
+// obtain the actual borders status.
 func ExamplePdfMaroto_GetBorder() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
-	// false
+	// false.
 	_ = m.GetBorder()
 
 	m.SetBorder(true)
 
-	// true
+	// true.
 	_ = m.GetBorder()
 
 	// Do more things and save...
 }
 
-// ExamplePdfMaroto_GetPageSize demonstrates how to obtain the current page size (width and height)
+// ExamplePdfMaroto_GetPageSize demonstrates how to obtain the current page size (width and height).
 func ExamplePdfMaroto_GetPageSize() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
@@ -524,37 +603,37 @@ func ExamplePdfMaroto_GetPageSize() {
 	// Do more things and save...
 }
 
-// ExamplePdfMaroto_GetCurrentPage demonstrates how to obtain the current page index
+// ExamplePdfMaroto_GetCurrentPage demonstrates how to obtain the current page index.
 func ExamplePdfMaroto_GetCurrentPage() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
-	// Index here will be 0
+	// Index here will be 0.
 	_ = m.GetCurrentPage()
 
-	// Add Rows, Cols and Components
+	// Add Rows, Cols and Components.
 
-	// Index here will not be 0
+	// Index here will not be 0.
 	_ = m.GetCurrentPage()
 
 	// Do more things and save...
 }
 
 // ExamplePdfMaroto_GetCurrentOffset demonstrates how to obtain the current write offset
-// i.e the height of cursor adding content in the pdf
+// i.e the height of cursor adding content in the pdf.
 func ExamplePdfMaroto_GetCurrentOffset() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
-	// Offset here will be 0
+	// Offset here will be 0.
 	_ = m.GetCurrentOffset()
 
-	// Add Rows, Cols and Components until maroto add a new page
+	// Add Rows, Cols and Components until maroto add a new page.
 
-	// Offset here will not be 0
+	// Offset here will not be 0.
 	_ = m.GetCurrentOffset()
 
-	// Add Rows, Cols and Components to maroto add a new page
+	// Add Rows, Cols and Components to maroto add a new page.
 
-	// Offset here will be 0
+	// Offset here will be 0.
 	_ = m.GetCurrentOffset()
 
 	// Do more things and save...
@@ -569,7 +648,7 @@ func ExamplePdfMaroto_SetPageMargins() {
 	// Do more things or not and save...
 }
 
-// ExamplePdfMaroto_GetPageMargins demonstrates how to obtain the current page margins
+// ExamplePdfMaroto_GetPageMargins demonstrates how to obtain the current page margins.
 func ExamplePdfMaroto_GetPageMargins() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
@@ -583,11 +662,11 @@ func ExamplePdfMaroto_GetPageMargins() {
 	// Do more things and save...
 }
 
-// ExamplePdfMaroto_AddUTF8Font demonstrates how to add a custom utf8 font
+// ExamplePdfMaroto_AddUTF8Font demonstrates how to add a custom utf8 font.
 func ExamplePdfMaroto_AddUTF8Font() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
-	// Define font to all styles
+	// Define font to all styles.
 	m.AddUTF8Font("CustomArial", consts.Normal, "internal/assets/fonts/arial-unicode-ms.ttf")
 	m.AddUTF8Font("CustomArial", consts.Italic, "internal/assets/fonts/arial-unicode-ms.ttf")
 	m.AddUTF8Font("CustomArial", consts.Bold, "internal/assets/fonts/arial-unicode-ms.ttf")
@@ -595,7 +674,7 @@ func ExamplePdfMaroto_AddUTF8Font() {
 
 	m.Row(10, func() {
 		m.Col(12, func() {
-			// Use style
+			// Use style.
 			m.Text("CustomUtf8Font", props.Text{
 				Family: "CustomArial",
 			})
@@ -605,18 +684,70 @@ func ExamplePdfMaroto_AddUTF8Font() {
 	// Do more things and save...
 }
 
-// ExamplePdfMaroto_AddUTF8Font demonstrates how to define a custom font to your pdf
+// ExamplePdfMaroto_AddUTF8FontFromBytes demonstrates how to add a custom UTF8 font from bytes.
+func ExamplePdfMaroto_AddUTF8FontFromBytes() {
+	m := pdf.NewMaroto(consts.Portrait, consts.A4)
+
+	// Read font .ttf file contents
+	fontBytes, err := ioutil.ReadFile("internal/assets/fonts/arial-unicode-ms.ttf")
+	if err != nil {
+		// Return error
+	}
+
+	// Add font to Maroto
+	m.AddUTF8FontFromBytes("CustomArial", consts.Normal, fontBytes)
+	m.AddUTF8FontFromBytes("CustomArial", consts.Italic, fontBytes)
+	m.AddUTF8FontFromBytes("CustomArial", consts.Bold, fontBytes)
+	m.AddUTF8FontFromBytes("CustomArial", consts.BoldItalic, fontBytes)
+
+	m.Row(10, func() {
+		m.Col(12, func() {
+			// Use new font style
+			m.Text("CustomUtf8Font", props.Text{
+				Family: "CustomArial",
+				Style:  consts.Bold,
+			})
+		})
+	})
+}
+
+// ExamplePdfMaroto_SetFontLocation demonstrates how to add a custom utf8 font from custom location.
+func ExamplePdfMaroto_SetFontLocation() {
+	m := pdf.NewMaroto(consts.Portrait, consts.A4)
+
+	// Define custom location. It might be an absolute path as well as a relative path.
+	m.SetFontLocation("internal/assets/fonts/")
+
+	// Define font to all styles.
+	m.AddUTF8Font("CustomArial", consts.Normal, "arial-unicode-ms.ttf")
+	m.AddUTF8Font("CustomArial", consts.Italic, "arial-unicode-ms.ttf")
+	m.AddUTF8Font("CustomArial", consts.Bold, "arial-unicode-ms.ttf")
+	m.AddUTF8Font("CustomArial", consts.BoldItalic, "arial-unicode-ms.ttf")
+
+	m.Row(10, func() {
+		m.Col(12, func() {
+			// Use style.
+			m.Text("CustomUtf8Font", props.Text{
+				Family: "CustomArial",
+			})
+		})
+	})
+
+	// Do more things and save...
+}
+
+// ExamplePdfMaroto_AddUTF8Font demonstrates how to define a custom font to your pdf.
 func TestPdfMaroto_SetDefaultFontFamily(t *testing.T) {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
-	// Default font family is Arial
+	// Default font family is Arial.
 
-	// Change the default to Courier
+	// Change the default to Courier.
 	m.SetDefaultFontFamily(consts.Courier)
 
 	m.Row(10, func() {
 		m.Col(12, func() {
-			// This will be in courier
+			// This will be in courier.
 			m.Text("CustomUtf8Font")
 		})
 	})
@@ -624,27 +755,93 @@ func TestPdfMaroto_SetDefaultFontFamily(t *testing.T) {
 	// Do more things and save...
 }
 
-// ExamplePdfMaroto_AddUTF8Font demonstrates how to obtain the current default font family
+// ExamplePdfMaroto_AddUTF8Font demonstrates how to obtain the current default font family.
 func ExamplePdfMaroto_GetDefaultFontFamily() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
-	// Will return Arial
+	// Will return Arial.
 	_ = m.GetDefaultFontFamily()
 
-	// Change the default to Courier
+	// Change the default to Courier.
 	m.SetDefaultFontFamily(consts.Courier)
 
-	// Will return Courier
+	// Will return Courier.
 	_ = m.GetDefaultFontFamily()
 
 	// Do more things and save...
 }
 
-// ExamplePdfMaroto_SetProtection demonstrates how to define a protection to pdf
+// ExamplePdfMaroto_SetCompression demonstrates how to disable compression
+// By default compression is enabled.
+func ExamplePdfMaroto_SetCompression() {
+	m := pdf.NewMaroto(consts.Portrait, consts.A4)
+
+	m.SetCompression(false)
+
+	// Do more things and save...
+}
+
+// ExamplePdfMaroto_SetProtection demonstrates how to define a protection to pdf.
 func ExamplePdfMaroto_SetProtection() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
 	m.SetProtection(1, "userPassword", "ownerPassword")
+
+	// Do more things and save...
+}
+
+// ExamplePdfMaroto_SetAuthor demonstrates how to define the author.
+func ExamplePdfMaroto_SetAuthor() {
+	m := pdf.NewMaroto(consts.Portrait, consts.A4)
+
+	m.SetAuthor("author", true)
+
+	// Do more things and save...
+}
+
+// ExamplePdfMaroto_SetCreator demonstrates how to define the creator.
+func ExamplePdfMaroto_SetCreator() {
+	m := pdf.NewMaroto(consts.Portrait, consts.A4)
+
+	m.SetCreator("creator", true)
+
+	// Do more things and save...
+}
+
+// ExamplePdfMaroto_SetSubject demonstrates how to define the subject.
+func ExamplePdfMaroto_SetSubject() {
+	m := pdf.NewMaroto(consts.Portrait, consts.A4)
+
+	m.SetSubject("subject", true)
+
+	// Do more things and save...
+}
+
+// ExamplePdfMaroto_SetTitle demonstrates how to define the title.
+func ExamplePdfMaroto_SetTitle() {
+	m := pdf.NewMaroto(consts.Portrait, consts.A4)
+
+	m.SetTitle("title", true)
+
+	// Do more things and save...
+}
+
+// ExamplePdfMaroto_SetCreationDate demonstrates how to define the creation date.
+func ExamplePdfMaroto_SetCreationDate() {
+	m := pdf.NewMaroto(consts.Portrait, consts.A4)
+	timeNow := time.Now()
+
+	m.SetCreationDate(timeNow)
+
+	// Do more things and save...
+}
+
+// ExamplePdfMaroto_SetMaxGridSum configures max amount of cols per row. Default is 12 cols per row.
+func ExamplePdfMaroto_SetMaxGridSum() {
+	m := pdf.NewMaroto(consts.Portrait, consts.A4)
+
+	// Set max cols per row
+	m.SetMaxGridSum(24)
 
 	// Do more things and save...
 }

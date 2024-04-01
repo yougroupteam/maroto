@@ -3,9 +3,11 @@ package pdf_test
 import (
 	"bytes"
 	"fmt"
+	"testing"
+	"time"
+
 	"github.com/johnfercher/maroto/internal"
 	"github.com/johnfercher/maroto/pkg/color"
-	"testing"
 
 	"github.com/johnfercher/maroto/internal/mocks"
 	"github.com/johnfercher/maroto/pkg/consts"
@@ -152,7 +154,6 @@ func TestNewPdf(t *testing.T) {
 		// Assert
 		c.assert(t, m)
 	}
-
 }
 
 func TestNewCustomSizeFpdf(t *testing.T) {
@@ -234,7 +235,6 @@ func TestNewCustomSizeFpdf(t *testing.T) {
 		// Assert
 		c.assert(t, m)
 	}
-
 }
 
 func TestFpdfMaroto_SetGetDebugMode(t *testing.T) {
@@ -264,7 +264,7 @@ func TestFpdfMaroto_SetFirstPageNb(t *testing.T) {
 func TestFpdfMaroto_SetAliasNbPages(t *testing.T) {
 	// Arrange
 	Fpdf := baseFpdfTest(10.0, 10.0, 10.0)
-	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil)
+	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
 
 	// Act
 	m.SetAliasNbPages("{nbs}")
@@ -293,7 +293,7 @@ func TestFpdfMaroto_Signature(t *testing.T) {
 			func(m pdf.Maroto) {
 				m.RegisterFooter(func() {
 					m.Row(40, func() {
-						m.Col(48, func() {
+						m.Col(12, func() {
 							m.Signature("Signature1")
 						})
 					})
@@ -309,7 +309,17 @@ func TestFpdfMaroto_Signature(t *testing.T) {
 			},
 			func(t *testing.T, signature *mocks.Signature) {
 				signature.AssertNumberOfCalls(t, "AddSpaceFor", 1)
-				signature.AssertCalled(t, "AddSpaceFor", "Signature1", internal.Cell{X: 0.0, Y: 0.0, Width: 80.0, Height: 40.0}, props.Text{Family: consts.Arial, Style: consts.Bold, Size: 8.0, Align: consts.Center})
+				signature.AssertCalled(t, "AddSpaceFor", "Signature1", internal.Cell{
+					X:      0.0,
+					Y:      0.0,
+					Width:  80.0,
+					Height: 40.0,
+				}, props.Text{
+					Family: consts.Arial,
+					Style:  consts.Bold,
+					Size:   8.0,
+					Align:  consts.Center,
+				})
 			},
 			func(m pdf.Maroto) {
 				m.Row(40, func() {
@@ -328,12 +338,32 @@ func TestFpdfMaroto_Signature(t *testing.T) {
 			},
 			func(t *testing.T, signature *mocks.Signature) {
 				signature.AssertNumberOfCalls(t, "AddSpaceFor", 2)
-				signature.AssertCalled(t, "AddSpaceFor", "Signature2", internal.Cell{X: 0.0, Y: 0.0, Width: 80.0, Height: 40.0}, props.Text{Family: consts.Arial, Style: consts.Bold, Size: 8.0, Align: consts.Center})
-				signature.AssertCalled(t, "AddSpaceFor", "Signature3", internal.Cell{X: 0.0, Y: 0.0, Width: 80.0, Height: 40.0}, props.Text{Family: consts.Courier, Style: consts.BoldItalic, Size: 9.5, Align: consts.Center})
+				signature.AssertCalled(t, "AddSpaceFor", "Signature2", internal.Cell{
+					X:      0.0,
+					Y:      0.0,
+					Width:  80.0,
+					Height: 40.0,
+				}, props.Text{
+					Family: consts.Arial,
+					Style:  consts.Bold,
+					Size:   8.0,
+					Align:  consts.Center,
+				})
+				signature.AssertCalled(t, "AddSpaceFor", "Signature3", internal.Cell{
+					X:      0.0,
+					Y:      0.0,
+					Width:  80.0,
+					Height: 40.0,
+				}, props.Text{
+					Family: consts.Courier,
+					Style:  consts.BoldItalic,
+					Size:   9.5,
+					Align:  consts.Center,
+				})
 			},
 			func(m pdf.Maroto) {
 				m.Row(40, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
 						m.Signature("Signature2")
 						m.Signature("Signature3", props.Font{
 							Family: consts.Courier,
@@ -353,15 +383,35 @@ func TestFpdfMaroto_Signature(t *testing.T) {
 			},
 			func(t *testing.T, signature *mocks.Signature) {
 				signature.AssertNumberOfCalls(t, "AddSpaceFor", 2)
-				signature.AssertCalled(t, "AddSpaceFor", "Signature4", internal.Cell{X: 0.0, Y: 0.0, Width: 40.0, Height: 40.0}, props.Text{Family: consts.Arial, Style: consts.Bold, Size: 8.0, Align: consts.Center})
-				signature.AssertCalled(t, "AddSpaceFor", "Signature5", internal.Cell{X: 40.0, Y: 0.0, Width: 40.0, Height: 40.0}, props.Text{Family: consts.Courier, Style: consts.BoldItalic, Size: 9.5, Align: consts.Center})
+				signature.AssertCalled(t, "AddSpaceFor", "Signature4", internal.Cell{
+					X:      0.0,
+					Y:      0.0,
+					Width:  40.0,
+					Height: 40.0,
+				}, props.Text{
+					Family: consts.Arial,
+					Style:  consts.Bold,
+					Size:   8.0,
+					Align:  consts.Center,
+				})
+				signature.AssertCalled(t, "AddSpaceFor", "Signature5", internal.Cell{
+					X:      40.0,
+					Y:      0.0,
+					Width:  40.0,
+					Height: 40.0,
+				}, props.Text{
+					Family: consts.Courier,
+					Style:  consts.BoldItalic,
+					Size:   9.5,
+					Align:  consts.Center,
+				})
 			},
 			func(m pdf.Maroto) {
 				m.Row(40, func() {
-					m.Col(24, func() {
+					m.Col(6, func() {
 						m.Signature("Signature4")
 					})
-					m.Col(24, func() {
+					m.Col(6, func() {
 						m.Signature("Signature5", props.Font{
 							Family: consts.Courier,
 							Style:  consts.BoldItalic,
@@ -380,17 +430,37 @@ func TestFpdfMaroto_Signature(t *testing.T) {
 			},
 			func(t *testing.T, signature *mocks.Signature) {
 				signature.AssertNumberOfCalls(t, "AddSpaceFor", 2)
-				signature.AssertCalled(t, "AddSpaceFor", "Signature6", internal.Cell{X: 0.0, Y: 0.0, Width: 40.0, Height: 40.0}, props.Text{Family: consts.Arial, Style: consts.Bold, Size: 8.0, Align: consts.Center})
-				signature.AssertCalled(t, "AddSpaceFor", "Signature7", internal.Cell{X: 0.0, Y: 40.0, Width: 40.0, Height: 40.0}, props.Text{Family: consts.Courier, Style: consts.BoldItalic, Size: 9.5, Align: consts.Center})
+				signature.AssertCalled(t, "AddSpaceFor", "Signature6", internal.Cell{
+					X:      0.0,
+					Y:      0.0,
+					Width:  40.0,
+					Height: 40.0,
+				}, props.Text{
+					Family: consts.Arial,
+					Style:  consts.Bold,
+					Size:   8.0,
+					Align:  consts.Center,
+				})
+				signature.AssertCalled(t, "AddSpaceFor", "Signature7", internal.Cell{
+					X:      0.0,
+					Y:      40.0,
+					Width:  40.0,
+					Height: 40.0,
+				}, props.Text{
+					Family: consts.Courier,
+					Style:  consts.BoldItalic,
+					Size:   9.5,
+					Align:  consts.Center,
+				})
 			},
 			func(m pdf.Maroto) {
 				m.Row(40, func() {
-					m.Col(24, func() {
+					m.Col(6, func() {
 						m.Signature("Signature6")
 					})
 				})
 				m.Row(40, func() {
-					m.Col(24, func() {
+					m.Col(6, func() {
 						m.Signature("Signature7", props.Font{
 							Family: consts.Courier,
 							Style:  consts.BoldItalic,
@@ -409,7 +479,22 @@ func TestFpdfMaroto_Signature(t *testing.T) {
 			},
 			func(t *testing.T, signature *mocks.Signature) {
 				signature.AssertNumberOfCalls(t, "AddSpaceFor", 1)
-				signature.AssertCalled(t, "AddSpaceFor", "Signature1", internal.Cell{X: 0.0, Y: 0.0, Width: 80.0, Height: 40.0}, props.Text{Family: consts.Arial, Style: consts.Bold, Size: 8.0, Align: consts.Center, Color: color.Color{Red: 20, Green: 20, Blue: 20}})
+				signature.AssertCalled(t, "AddSpaceFor", "Signature1", internal.Cell{
+					X:      0.0,
+					Y:      0.0,
+					Width:  80.0,
+					Height: 40.0,
+				}, props.Text{
+					Family: consts.Arial,
+					Style:  consts.Bold,
+					Size:   8.0,
+					Align:  consts.Center,
+					Color: color.Color{
+						Red:   20,
+						Green: 20,
+						Blue:  20,
+					},
+				})
 			},
 			func(m pdf.Maroto) {
 				m.Row(40, func() {
@@ -429,7 +514,7 @@ func TestFpdfMaroto_Signature(t *testing.T) {
 		Fpdf := baseFpdfTest(10, 10, 10)
 		math := baseMathTest()
 		tableList := baseTableList()
-		m := newMarotoTest(Fpdf, math, nil, nil, signature, nil, nil, tableList)
+		m := newMarotoTest(Fpdf, math, nil, nil, signature, nil, nil, tableList, nil)
 
 		// Act
 		c.act(m)
@@ -449,11 +534,23 @@ func TestFpdfMaroto_Text(t *testing.T) {
 			"One text inside one column, inside a row, without props",
 			func(t *testing.T, text *mocks.Text) {
 				text.AssertNumberOfCalls(t, "Add", 1)
-				text.AssertCalled(t, "Add", "Text1", internal.Cell{X: 0.0, Y: 0.0, Width: 80.0, Height: 0.0}, props.Text{Family: consts.Arial, Style: consts.Normal, Align: consts.Left, Top: 0.0, Extrapolate: false, Size: 10.0})
+				text.AssertCalled(t, "Add", "Text1", internal.Cell{
+					X:      0.0,
+					Y:      0.0,
+					Width:  80.0,
+					Height: 0.0,
+				}, props.Text{
+					Family:      consts.Arial,
+					Style:       consts.Normal,
+					Align:       consts.Left,
+					Top:         0.0,
+					Extrapolate: false,
+					Size:        10.0,
+				})
 			},
 			func(m pdf.Maroto) {
 				m.Row(40, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
 						m.Text("Text1")
 					})
 				})
@@ -463,12 +560,36 @@ func TestFpdfMaroto_Text(t *testing.T) {
 			"Two different text inside one colum, inside one row",
 			func(t *testing.T, text *mocks.Text) {
 				text.AssertNumberOfCalls(t, "Add", 2)
-				text.AssertCalled(t, "Add", "Text2", internal.Cell{X: 0.0, Y: 0.0, Width: 80.0, Height: 0.0}, props.Text{Family: consts.Arial, Style: consts.Normal, Align: consts.Left, Top: 0.0, Extrapolate: false, Size: 10.0})
-				text.AssertCalled(t, "Add", "Text3", internal.Cell{X: 0.0, Y: 5.0, Width: 80.0, Height: 0.0}, props.Text{Family: consts.Courier, Style: consts.BoldItalic, Align: consts.Center, Top: 5.0, Extrapolate: false, Size: 9.5})
+				text.AssertCalled(t, "Add", "Text2", internal.Cell{
+					X:      0.0,
+					Y:      0.0,
+					Width:  80.0,
+					Height: 0.0,
+				}, props.Text{
+					Family:      consts.Arial,
+					Style:       consts.Normal,
+					Align:       consts.Left,
+					Top:         0.0,
+					Extrapolate: false,
+					Size:        10.0,
+				})
+				text.AssertCalled(t, "Add", "Text3", internal.Cell{
+					X:      0.0,
+					Y:      5.0,
+					Width:  80.0,
+					Height: 0.0,
+				}, props.Text{
+					Family:      consts.Courier,
+					Style:       consts.BoldItalic,
+					Align:       consts.Center,
+					Top:         5.0,
+					Extrapolate: false,
+					Size:        9.5,
+				})
 			},
 			func(m pdf.Maroto) {
 				m.Row(40, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
 						m.Text("Text2")
 						m.Text("Text3", props.Text{
 							Family: consts.Courier,
@@ -485,15 +606,39 @@ func TestFpdfMaroto_Text(t *testing.T) {
 			"Two different text with different columns, inside one row",
 			func(t *testing.T, text *mocks.Text) {
 				text.AssertNumberOfCalls(t, "Add", 2)
-				text.AssertCalled(t, "Add", "Text4", internal.Cell{X: 0.0, Y: 0.0, Width: 80.0, Height: 0.0}, props.Text{Family: consts.Arial, Style: consts.Normal, Align: consts.Left, Top: 0.0, Extrapolate: false, Size: 10.0})
-				text.AssertCalled(t, "Add", "Text5", internal.Cell{X: 80.0, Y: 4.4, Width: 80.0, Height: 0.0}, props.Text{Family: consts.Helvetica, Style: consts.Italic, Align: consts.Center, Top: 4.4, Extrapolate: false, Size: 8.5})
+				text.AssertCalled(t, "Add", "Text4", internal.Cell{
+					X:      0.0,
+					Y:      0.0,
+					Width:  80.0,
+					Height: 0.0,
+				}, props.Text{
+					Family:      consts.Arial,
+					Style:       consts.Normal,
+					Align:       consts.Left,
+					Top:         0.0,
+					Extrapolate: false,
+					Size:        10.0,
+				})
+				text.AssertCalled(t, "Add", "Text5", internal.Cell{
+					X:      80.0,
+					Y:      4.4,
+					Width:  80.0,
+					Height: 0.0,
+				}, props.Text{
+					Family:      consts.Helvetica,
+					Style:       consts.Italic,
+					Align:       consts.Center,
+					Top:         4.4,
+					Extrapolate: false,
+					Size:        8.5,
+				})
 			},
 			func(m pdf.Maroto) {
 				m.Row(40, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
 						m.Text("Text4")
 					})
-					m.Col(48, func() {
+					m.Col(12, func() {
 						m.Text("Text5", props.Text{
 							Family: consts.Helvetica,
 							Style:  consts.Italic,
@@ -509,17 +654,41 @@ func TestFpdfMaroto_Text(t *testing.T) {
 			"Two different text with different columns, inside one row",
 			func(t *testing.T, text *mocks.Text) {
 				text.AssertNumberOfCalls(t, "Add", 2)
-				text.AssertCalled(t, "Add", "Text6", internal.Cell{X: 0.0, Y: 0.0, Width: 80.0, Height: 0.0}, props.Text{Family: consts.Arial, Style: consts.Normal, Align: consts.Left, Top: 0.0, Extrapolate: false, Size: 10.0})
-				text.AssertCalled(t, "Add", "Text7", internal.Cell{X: 0.0, Y: 40.0, Width: 80.0, Height: 0.0}, props.Text{Family: consts.Courier, Style: consts.BoldItalic, Align: consts.Left, Top: 0.0, Extrapolate: false, Size: 9.5})
+				text.AssertCalled(t, "Add", "Text6", internal.Cell{
+					X:      0.0,
+					Y:      0.0,
+					Width:  80.0,
+					Height: 0.0,
+				}, props.Text{
+					Family:      consts.Arial,
+					Style:       consts.Normal,
+					Align:       consts.Left,
+					Top:         0.0,
+					Extrapolate: false,
+					Size:        10.0,
+				})
+				text.AssertCalled(t, "Add", "Text7", internal.Cell{
+					X:      0.0,
+					Y:      40.0,
+					Width:  80.0,
+					Height: 0.0,
+				}, props.Text{
+					Family:      consts.Courier,
+					Style:       consts.BoldItalic,
+					Align:       consts.Left,
+					Top:         0.0,
+					Extrapolate: false,
+					Size:        9.5,
+				})
 			},
 			func(m pdf.Maroto) {
 				m.Row(40, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
 						m.Text("Text6")
 					})
 				})
 				m.Row(40, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
 						m.Text("Text7", props.Text{
 							Family: consts.Courier,
 							Style:  consts.BoldItalic,
@@ -530,14 +699,191 @@ func TestFpdfMaroto_Text(t *testing.T) {
 			},
 		},
 		{
-			"When top is greater than row height",
+			"Left-indented text",
 			func(t *testing.T, text *mocks.Text) {
 				text.AssertNumberOfCalls(t, "Add", 1)
-				text.AssertCalled(t, "Add", "Text8", internal.Cell{X: 0.0, Y: 40.0, Width: 80.0, Height: 0.0}, props.Text{Family: consts.Arial, Align: consts.Left, Top: 40.0, Extrapolate: false, Size: 10.0})
+				text.AssertCalled(t, "Add", "Text", internal.Cell{
+					X:      10.0,
+					Y:      0.0,
+					Width:  70.0,
+					Height: 0.0,
+				}, props.Text{
+					Family:      consts.Arial,
+					Align:       consts.Left,
+					Extrapolate: false,
+					Size:        10.0,
+					Left:        10.0,
+				})
 			},
 			func(m pdf.Maroto) {
 				m.Row(40, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
+						m.Text("Text", props.Text{
+							Left: 10.0,
+						})
+					})
+				})
+			},
+		},
+		{
+			"Right-indented text",
+			func(t *testing.T, text *mocks.Text) {
+				text.AssertNumberOfCalls(t, "Add", 1)
+				text.AssertCalled(t, "Add", "Text", internal.Cell{
+					X:      0.0,
+					Y:      0.0,
+					Width:  70.0,
+					Height: 0.0,
+				}, props.Text{
+					Family:      consts.Arial,
+					Align:       consts.Left,
+					Extrapolate: false,
+					Size:        10.0,
+					Right:       10.0,
+				})
+			},
+			func(m pdf.Maroto) {
+				m.Row(40, func() {
+					m.Col(12, func() {
+						m.Text("Text", props.Text{
+							Right: 10.0,
+						})
+					})
+				})
+			},
+		},
+		{
+			"Left- and right-indented text",
+			func(t *testing.T, text *mocks.Text) {
+				text.AssertNumberOfCalls(t, "Add", 1)
+				text.AssertCalled(t, "Add", "Text", internal.Cell{
+					X:      10.0,
+					Y:      0.0,
+					Width:  60.0,
+					Height: 0.0,
+				}, props.Text{
+					Family:      consts.Arial,
+					Align:       consts.Left,
+					Extrapolate: false,
+					Size:        10.0,
+					Left:        10.0,
+					Right:       10.0,
+				})
+			},
+			func(m pdf.Maroto) {
+				m.Row(40, func() {
+					m.Col(12, func() {
+						m.Text("Text", props.Text{
+							Left:  10.0,
+							Right: 10.0,
+						})
+					})
+				})
+			},
+		},
+		{
+			"Left-indent larger than col width",
+			func(t *testing.T, text *mocks.Text) {
+				text.AssertNumberOfCalls(t, "Add", 1)
+				text.AssertCalled(t, "Add", "Text", internal.Cell{
+					X:      80.0,
+					Y:      0.0,
+					Width:  0.0,
+					Height: 0.0,
+				}, props.Text{
+					Family:      consts.Arial,
+					Align:       consts.Left,
+					Extrapolate: false,
+					Size:        10.0,
+					Left:        80.0,
+				})
+			},
+			func(m pdf.Maroto) {
+				m.Row(40, func() {
+					m.Col(12, func() {
+						m.Text("Text", props.Text{
+							Left: 100.0,
+						})
+					})
+				})
+			},
+		},
+		{
+			"Right-indent larger than col width",
+			func(t *testing.T, text *mocks.Text) {
+				text.AssertNumberOfCalls(t, "Add", 1)
+				text.AssertCalled(t, "Add", "Text", internal.Cell{
+					X:      0.0,
+					Y:      0.0,
+					Width:  0.0,
+					Height: 0.0,
+				}, props.Text{
+					Family:      consts.Arial,
+					Align:       consts.Left,
+					Extrapolate: false,
+					Size:        10.0,
+					Right:       80.0,
+				})
+			},
+			func(m pdf.Maroto) {
+				m.Row(40, func() {
+					m.Col(12, func() {
+						m.Text("Text", props.Text{
+							Right: 100.0,
+						})
+					})
+				})
+			},
+		},
+		{
+			"Indents larger than col width",
+			func(t *testing.T, text *mocks.Text) {
+				text.AssertNumberOfCalls(t, "Add", 1)
+				text.AssertCalled(t, "Add", "Text", internal.Cell{
+					X:      40.0,
+					Y:      0.0,
+					Width:  0.0,
+					Height: 0.0,
+				}, props.Text{
+					Family:      consts.Arial,
+					Align:       consts.Left,
+					Extrapolate: false,
+					Size:        10.0,
+					Left:        40.0,
+					Right:       60.0,
+				})
+			},
+			func(m pdf.Maroto) {
+				m.Row(40, func() {
+					m.Col(12, func() {
+						m.Text("Text", props.Text{
+							Left:  40.0,
+							Right: 60.0,
+						})
+					})
+				})
+			},
+		},
+		{
+			"When top is greater than row height",
+			func(t *testing.T, text *mocks.Text) {
+				text.AssertNumberOfCalls(t, "Add", 1)
+				text.AssertCalled(t, "Add", "Text8", internal.Cell{
+					X:      0.0,
+					Y:      40.0,
+					Width:  80.0,
+					Height: 0.0,
+				}, props.Text{
+					Family:      consts.Arial,
+					Align:       consts.Left,
+					Top:         40.0,
+					Extrapolate: false,
+					Size:        10.0,
+				})
+			},
+			func(m pdf.Maroto) {
+				m.Row(40, func() {
+					m.Col(12, func() {
 						m.Text("Text8", props.Text{
 							Top: 50,
 						})
@@ -549,11 +895,28 @@ func TestFpdfMaroto_Text(t *testing.T) {
 			"custom color",
 			func(t *testing.T, text *mocks.Text) {
 				text.AssertNumberOfCalls(t, "Add", 1)
-				text.AssertCalled(t, "Add", "Text1", internal.Cell{X: 0.0, Y: 0.0, Width: 80.0, Height: 0.0}, props.Text{Family: consts.Arial, Style: consts.Normal, Align: consts.Left, Top: 0.0, Extrapolate: false, Size: 10.0, Color: color.Color{Red: 20, Green: 20, Blue: 20}})
+				text.AssertCalled(t, "Add", "Text1", internal.Cell{
+					X:      0.0,
+					Y:      0.0,
+					Width:  80.0,
+					Height: 0.0,
+				}, props.Text{
+					Family:      consts.Arial,
+					Style:       consts.Normal,
+					Align:       consts.Left,
+					Top:         0.0,
+					Extrapolate: false,
+					Size:        10.0,
+					Color: color.Color{
+						Red:   20,
+						Green: 20,
+						Blue:  20,
+					},
+				})
 			},
 			func(m pdf.Maroto) {
 				m.Row(40, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
 						m.Text("Text1", props.Text{
 							Color: color.Color{
 								Red:   20,
@@ -573,7 +936,7 @@ func TestFpdfMaroto_Text(t *testing.T) {
 		Fpdf := baseFpdfTest(10, 10, 10)
 		math := baseMathTest()
 		tableList := baseTableList()
-		m := newMarotoTest(Fpdf, math, nil, text, nil, nil, nil, tableList)
+		m := newMarotoTest(Fpdf, math, nil, text, nil, nil, nil, tableList, nil)
 
 		// Act
 		c.act(m)
@@ -608,7 +971,7 @@ func TestFpdfMaroto_FileImage(t *testing.T) {
 			},
 			func(m pdf.Maroto) {
 				m.Row(20, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
 						_ = m.FileImage("Image1")
 					})
 				})
@@ -716,7 +1079,7 @@ func TestFpdfMaroto_FileImage(t *testing.T) {
 			},
 			func(m pdf.Maroto) {
 				m.Row(20, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
 						_ = m.FileImage("Image6", props.Rect{
 							Left:    7.0,
 							Top:     8.5,
@@ -725,7 +1088,7 @@ func TestFpdfMaroto_FileImage(t *testing.T) {
 					})
 				})
 				m.Row(20, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
 						_ = m.FileImage("Image7", props.Rect{
 							Percent: 98.0,
 							Center:  true,
@@ -743,7 +1106,7 @@ func TestFpdfMaroto_FileImage(t *testing.T) {
 		image := c.image()
 		tableList := baseTableList()
 
-		m := newMarotoTest(Fpdf, math, nil, nil, nil, image, nil, tableList)
+		m := newMarotoTest(Fpdf, math, nil, nil, nil, image, nil, tableList, nil)
 
 		// Act
 		c.act(m)
@@ -764,7 +1127,8 @@ func TestFpdfMaroto_Base64Image(t *testing.T) {
 			"One code inside a col inside a row",
 			func() *mocks.Image {
 				image := &mocks.Image{}
-				image.On("AddFromBase64", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+				image.On("AddFromBase64", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything).Return(nil)
 				return image
 			},
 			func(t *testing.T, image *mocks.Image) {
@@ -778,7 +1142,7 @@ func TestFpdfMaroto_Base64Image(t *testing.T) {
 			},
 			func(m pdf.Maroto) {
 				m.Row(20, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
 						_ = m.Base64Image("Image1", consts.Jpg)
 					})
 				})
@@ -788,7 +1152,8 @@ func TestFpdfMaroto_Base64Image(t *testing.T) {
 			"Two images inside a col inside a row",
 			func() *mocks.Image {
 				image := &mocks.Image{}
-				image.On("AddFromBase64", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+				image.On("AddFromBase64", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything, mock.Anything).Return(nil)
 				return image
 			},
 			func(t *testing.T, image *mocks.Image) {
@@ -826,7 +1191,8 @@ func TestFpdfMaroto_Base64Image(t *testing.T) {
 			"Two images inside two cols inside a row",
 			func() *mocks.Image {
 				image := &mocks.Image{}
-				image.On("AddFromBase64", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+				image.On("AddFromBase64", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything).Return(nil)
 				return image
 			},
 			func(t *testing.T, image *mocks.Image) {
@@ -846,14 +1212,14 @@ func TestFpdfMaroto_Base64Image(t *testing.T) {
 			},
 			func(m pdf.Maroto) {
 				m.Row(20, func() {
-					m.Col(24, func() {
+					m.Col(6, func() {
 						_ = m.Base64Image("Image4", consts.Png, props.Rect{
 							Left:    4.0,
 							Top:     4.5,
 							Percent: 55.0,
 						})
 					})
-					m.Col(24, func() {
+					m.Col(6, func() {
 						_ = m.Base64Image("Image5", consts.Jpg, props.Rect{
 							Percent: 53.0,
 							Center:  true,
@@ -866,7 +1232,8 @@ func TestFpdfMaroto_Base64Image(t *testing.T) {
 			"Two images inside one col inside two rows",
 			func() *mocks.Image {
 				image := &mocks.Image{}
-				image.On("AddFromBase64", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+				image.On("AddFromBase64", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+					mock.Anything, mock.Anything).Return(nil)
 				return image
 			},
 			func(t *testing.T, image *mocks.Image) {
@@ -886,7 +1253,7 @@ func TestFpdfMaroto_Base64Image(t *testing.T) {
 			},
 			func(m pdf.Maroto) {
 				m.Row(20, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
 						_ = m.Base64Image("Image6", consts.Png, props.Rect{
 							Left:    7.0,
 							Top:     8.5,
@@ -895,7 +1262,7 @@ func TestFpdfMaroto_Base64Image(t *testing.T) {
 					})
 				})
 				m.Row(20, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
 						_ = m.Base64Image("Image7", consts.Jpg, props.Rect{
 							Percent: 98.0,
 							Center:  true,
@@ -913,7 +1280,7 @@ func TestFpdfMaroto_Base64Image(t *testing.T) {
 		image := c.image()
 		tableList := baseTableList()
 
-		m := newMarotoTest(Fpdf, math, nil, nil, nil, image, nil, tableList)
+		m := newMarotoTest(Fpdf, math, nil, nil, nil, image, nil, tableList, nil)
 
 		// Act
 		c.act(m)
@@ -923,6 +1290,7 @@ func TestFpdfMaroto_Base64Image(t *testing.T) {
 	}
 }
 
+// nolint:dupl // QrCode test
 func TestFpdfMaroto_QrCode(t *testing.T) {
 	cases := []struct {
 		name   string
@@ -939,7 +1307,8 @@ func TestFpdfMaroto_QrCode(t *testing.T) {
 			},
 			func(t *testing.T, code *mocks.Code) {
 				code.AssertNumberOfCalls(t, "AddQr", 1)
-				code.AssertCalled(t, "AddQr", "Code1", internal.Cell{X: 0.0, Y: 0.0, Width: 80.0, Height: 20.0}, props.Rect{Percent: 100, Center: false})
+				code.AssertCalled(t, "AddQr", "Code1", internal.Cell{X: 0.0, Y: 0.0, Width: 80.0, Height: 20.0},
+					props.Rect{Percent: 100, Center: false})
 			},
 			func(m pdf.Maroto) {
 				m.Row(20, func() {
@@ -1005,14 +1374,14 @@ func TestFpdfMaroto_QrCode(t *testing.T) {
 			},
 			func(m pdf.Maroto) {
 				m.Row(20, func() {
-					m.Col(24, func() {
+					m.Col(6, func() {
 						m.QrCode("Code4", props.Rect{
 							Left:    4.0,
 							Top:     4.5,
 							Percent: 55.0,
 						})
 					})
-					m.Col(24, func() {
+					m.Col(6, func() {
 						m.QrCode("Code5", props.Rect{
 							Percent: 53.0,
 							Center:  true,
@@ -1051,7 +1420,7 @@ func TestFpdfMaroto_QrCode(t *testing.T) {
 					})
 				})
 				m.Row(20, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
 						m.QrCode("Code7", props.Rect{
 							Percent: 98.0,
 							Center:  true,
@@ -1069,7 +1438,7 @@ func TestFpdfMaroto_QrCode(t *testing.T) {
 		code := c.code()
 		tableList := baseTableList()
 
-		m := newMarotoTest(Fpdf, math, nil, nil, nil, nil, code, tableList)
+		m := newMarotoTest(Fpdf, math, nil, nil, nil, nil, code, tableList, nil)
 
 		// Act
 		c.act(m)
@@ -1095,11 +1464,23 @@ func TestFpdfMaroto_Barcode(t *testing.T) {
 			},
 			func(t *testing.T, code *mocks.Code) {
 				code.AssertNumberOfCalls(t, "AddBar", 1)
-				code.AssertCalled(t, "AddBar", "Code1", internal.Cell{X: 0.0, Y: 0.0, Width: 80.0, Height: 20.0}, props.Barcode{Percent: 100, Center: false, Proportion: props.Proportion{Width: 1, Height: 0.2}})
+				code.AssertCalled(t, "AddBar", "Code1", internal.Cell{
+					X:      0.0,
+					Y:      0.0,
+					Width:  80.0,
+					Height: 20.0,
+				}, props.Barcode{
+					Percent: 100,
+					Center:  false,
+					Proportion: props.Proportion{
+						Width:  1,
+						Height: 0.2,
+					},
+				})
 			},
 			func(m pdf.Maroto) {
 				m.Row(20, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
 						_ = m.Barcode("Code1", props.Barcode{Proportion: props.Proportion{Width: 1, Height: 0.2}})
 					})
 				})
@@ -1128,7 +1509,7 @@ func TestFpdfMaroto_Barcode(t *testing.T) {
 			},
 			func(m pdf.Maroto) {
 				m.Row(20, func() {
-					m.Col(48, func() {
+					m.Col(12, func() {
 						_ = m.Barcode("Code2", props.Barcode{
 							Left:       2.0,
 							Top:        4.0,
@@ -1153,7 +1534,173 @@ func TestFpdfMaroto_Barcode(t *testing.T) {
 		code := c.code()
 		tableList := baseTableList()
 
-		m := newMarotoTest(Fpdf, math, nil, nil, nil, nil, code, tableList)
+		m := newMarotoTest(Fpdf, math, nil, nil, nil, nil, code, tableList, nil)
+
+		// Act
+		c.act(m)
+
+		// Assert
+		c.assert(t, code)
+	}
+}
+
+// nolint:dupl // DataMatrixCod test
+func TestFpdfMaroto_DataMatrixCode(t *testing.T) {
+	cases := []struct {
+		name   string
+		code   func() *mocks.Code
+		assert func(t *testing.T, image *mocks.Code)
+		act    func(m pdf.Maroto)
+	}{
+		{
+			"One code inside a col inside a row",
+			func() *mocks.Code {
+				code := &mocks.Code{}
+				code.On("AddDataMatrix", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+				return code
+			},
+			func(t *testing.T, code *mocks.Code) {
+				code.AssertNumberOfCalls(t, "AddDataMatrix", 1)
+				code.AssertCalled(t, "AddDataMatrix", "Code1",
+					internal.Cell{
+						X:      0.0,
+						Y:      0.0,
+						Width:  80.0,
+						Height: 20.0,
+					}, props.Rect{
+						Percent: 100,
+						Center:  false,
+					})
+			},
+			func(m pdf.Maroto) {
+				m.Row(20, func() {
+					m.Col(0, func() {
+						m.DataMatrixCode("Code1")
+					})
+				})
+			},
+		},
+		{
+			"Two codes inside a col inside a row",
+			func() *mocks.Code {
+				code := &mocks.Code{}
+				code.On("AddDataMatrix", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+				return code
+			},
+			func(t *testing.T, code *mocks.Code) {
+				code.AssertNumberOfCalls(t, "AddDataMatrix", 2)
+				code.AssertCalled(t, "AddDataMatrix", "Code2", internal.Cell{X: 0.0, Y: 4.0, Width: 80.0, Height: 20.0}, props.Rect{
+					Left:    2.0,
+					Top:     4.0,
+					Percent: 40.0,
+				})
+				code.AssertCalled(t, "AddDataMatrix", "Code3", internal.Cell{X: 0.0, Y: 0.0, Width: 80.0, Height: 20.0}, props.Rect{
+					Percent: 40.0,
+					Center:  true,
+				})
+			},
+			func(m pdf.Maroto) {
+				m.Row(20, func() {
+					m.Col(0, func() {
+						m.DataMatrixCode("Code2", props.Rect{
+							Left:    2.0,
+							Top:     4.0,
+							Percent: 40.0,
+						})
+						m.DataMatrixCode("Code3", props.Rect{
+							Percent: 40.0,
+							Center:  true,
+						})
+					})
+				})
+			},
+		},
+		{
+			"Two codes inside two cols inside a row",
+			func() *mocks.Code {
+				code := &mocks.Code{}
+				code.On("AddDataMatrix", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+				return code
+			},
+			func(t *testing.T, code *mocks.Code) {
+				code.AssertNumberOfCalls(t, "AddDataMatrix", 2)
+				code.AssertCalled(t, "AddDataMatrix", "Code4", internal.Cell{X: 0.0, Y: 4.5, Width: 40.0, Height: 20.0}, props.Rect{
+					Left:    4.0,
+					Top:     4.5,
+					Percent: 55.0,
+				})
+				code.AssertCalled(t, "AddDataMatrix", "Code5", internal.Cell{X: 40.0, Y: 0.0, Width: 40.0, Height: 20.0}, props.Rect{
+					Percent: 53.0,
+					Center:  true,
+				})
+			},
+			func(m pdf.Maroto) {
+				m.Row(20, func() {
+					m.Col(6, func() {
+						m.DataMatrixCode("Code4", props.Rect{
+							Left:    4.0,
+							Top:     4.5,
+							Percent: 55.0,
+						})
+					})
+					m.Col(6, func() {
+						m.DataMatrixCode("Code5", props.Rect{
+							Percent: 53.0,
+							Center:  true,
+						})
+					})
+				})
+			},
+		},
+		{
+			"Two codes inside one col inside two rows",
+			func() *mocks.Code {
+				code := &mocks.Code{}
+				code.On("AddDataMatrix", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+				return code
+			},
+			func(t *testing.T, code *mocks.Code) {
+				code.AssertNumberOfCalls(t, "AddDataMatrix", 2)
+				code.AssertCalled(t, "AddDataMatrix", "Code6", internal.Cell{X: 0.0, Y: 8.5, Width: 80.0, Height: 20.0}, props.Rect{
+					Left:    7.0,
+					Top:     8.5,
+					Percent: 66.0,
+				})
+				code.AssertCalled(t, "AddDataMatrix", "Code7", internal.Cell{X: 0.0, Y: 20.0, Width: 80.0, Height: 20.0}, props.Rect{
+					Percent: 98.0,
+					Center:  true,
+				})
+			},
+			func(m pdf.Maroto) {
+				m.Row(20, func() {
+					m.Col(0, func() {
+						m.DataMatrixCode("Code6", props.Rect{
+							Left:    7.0,
+							Top:     8.5,
+							Percent: 66.0,
+						})
+					})
+				})
+				m.Row(20, func() {
+					m.Col(12, func() {
+						m.DataMatrixCode("Code7", props.Rect{
+							Percent: 98.0,
+							Center:  true,
+						})
+					})
+				})
+			},
+		},
+	}
+
+	for _, c := range cases {
+		// Arrange
+		Fpdf := baseFpdfTest(10, 10, 10)
+		math := baseMathTest()
+		code := c.code()
+		tableList := baseTableList()
+
+		m := newMarotoTest(Fpdf, math, nil, nil, nil, nil, code, tableList, nil)
 
 		// Act
 		c.act(m)
@@ -1269,7 +1816,7 @@ func TestFpdfMaroto_Row(t *testing.T) {
 		math := baseMathTest()
 		tableList := baseTableList()
 
-		m := newMarotoTest(Fpdf, math, nil, nil, nil, nil, nil, tableList)
+		m := newMarotoTest(Fpdf, math, nil, nil, nil, nil, nil, tableList, nil)
 		calledTimes := 0
 
 		// Act
@@ -1285,45 +1832,163 @@ func TestFpdfMaroto_Line(t *testing.T) {
 	cases := []struct {
 		name   string
 		Fpdf   func() *mocks.Fpdf
-		assert func(t *testing.T, Fpdf *mocks.Fpdf)
+		Line   func() *mocks.Line
+		assert func(t *testing.T, Fpdf *mocks.Fpdf, line *mocks.Line)
 		act    func(m pdf.Maroto)
 	}{
 		{
-			"One line",
+			"Line without prop",
 			func() *mocks.Fpdf {
 				Fpdf := baseFpdfTest(10, 10, 10)
-				Fpdf.On("Line", mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 				return Fpdf
 			},
-			func(t *testing.T, Fpdf *mocks.Fpdf) {
+			func() *mocks.Line {
+				line := new(mocks.Line)
+				line.On("Draw", mock.Anything, mock.Anything)
+				return line
+			},
+			func(t *testing.T, Fpdf *mocks.Fpdf, line *mocks.Line) {
 				Fpdf.AssertNumberOfCalls(t, "GetMargins", 5)
 				Fpdf.AssertNumberOfCalls(t, "GetPageSize", 5)
 
-				Fpdf.AssertNumberOfCalls(t, "Line", 1)
-				Fpdf.AssertCalled(t, "Line", 10.0, 10.5, 90.0, 10.5)
+				line.AssertNumberOfCalls(t, "Draw", 1)
+				line.AssertCalled(t, "Draw", internal.Cell{
+					X:      10,
+					Y:      10.5,
+					Width:  90,
+					Height: 10.5,
+				}, props.Line{
+					Color: color.Color{
+						Red:   0,
+						Green: 0,
+						Blue:  0,
+					},
+					Style: consts.Solid,
+					Width: 0.1,
+				})
 			},
 			func(m pdf.Maroto) {
 				m.Line(1.0)
 			},
 		},
 		{
-			"Two lines",
+			"One solid line without color",
 			func() *mocks.Fpdf {
 				Fpdf := baseFpdfTest(10, 10, 10)
 				Fpdf.On("Line", mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 				return Fpdf
 			},
-			func(t *testing.T, Fpdf *mocks.Fpdf) {
-				Fpdf.AssertNumberOfCalls(t, "GetMargins", 8)
-				Fpdf.AssertNumberOfCalls(t, "GetPageSize", 8)
+			func() *mocks.Line {
+				line := new(mocks.Line)
+				line.On("Draw", mock.Anything, mock.Anything)
+				return line
+			},
+			func(t *testing.T, Fpdf *mocks.Fpdf, line *mocks.Line) {
+				Fpdf.AssertNumberOfCalls(t, "GetMargins", 5)
+				Fpdf.AssertNumberOfCalls(t, "GetPageSize", 5)
 
-				Fpdf.AssertNumberOfCalls(t, "Line", 2)
-				Fpdf.AssertCalled(t, "Line", 10.0, 11.0, 90.0, 11.0)
-				Fpdf.AssertCalled(t, "Line", 10.0, 14.0, 90.0, 14.0)
+				line.AssertNumberOfCalls(t, "Draw", 1)
+				line.AssertCalled(t, "Draw", internal.Cell{
+					X:      10,
+					Y:      11,
+					Width:  90,
+					Height: 11,
+				}, props.Line{
+					Color: color.Color{
+						Red:   255,
+						Green: 100,
+						Blue:  50,
+					},
+					Style: consts.Solid,
+					Width: 0.1,
+				})
 			},
 			func(m pdf.Maroto) {
-				m.Line(2.0)
-				m.Line(4.0)
+				m.Line(2.0, props.Line{
+					Color: color.Color{
+						Red:   255,
+						Green: 100,
+						Blue:  50,
+					},
+				})
+			},
+		},
+		// nolint:dupl // better this way
+		{
+			"One dashed line without color",
+			func() *mocks.Fpdf {
+				Fpdf := baseFpdfTest(10, 10, 10)
+				Fpdf.On("Line", mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+				return Fpdf
+			},
+			func() *mocks.Line {
+				line := new(mocks.Line)
+				line.On("Draw", mock.Anything, mock.Anything)
+				return line
+			},
+			func(t *testing.T, Fpdf *mocks.Fpdf, line *mocks.Line) {
+				Fpdf.AssertNumberOfCalls(t, "GetMargins", 5)
+				Fpdf.AssertNumberOfCalls(t, "GetPageSize", 5)
+
+				line.AssertNumberOfCalls(t, "Draw", 1)
+				line.AssertCalled(t, "Draw", internal.Cell{
+					X:      10,
+					Y:      11,
+					Width:  90,
+					Height: 11,
+				}, props.Line{
+					Color: color.Color{
+						Red:   0,
+						Green: 0,
+						Blue:  0,
+					},
+					Style: consts.Dashed,
+					Width: 0.1,
+				})
+			},
+			func(m pdf.Maroto) {
+				m.Line(2.0, props.Line{
+					Style: consts.Dashed,
+				})
+			},
+		},
+		// nolint:dupl // better this way
+		{
+			"One dotted line without color",
+			func() *mocks.Fpdf {
+				Fpdf := baseFpdfTest(10, 10, 10)
+				Fpdf.On("Line", mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+				return Fpdf
+			},
+			func() *mocks.Line {
+				line := new(mocks.Line)
+				line.On("Draw", mock.Anything, mock.Anything)
+				return line
+			},
+			func(t *testing.T, Fpdf *mocks.Fpdf, line *mocks.Line) {
+				Fpdf.AssertNumberOfCalls(t, "GetMargins", 5)
+				Fpdf.AssertNumberOfCalls(t, "GetPageSize", 5)
+
+				line.AssertNumberOfCalls(t, "Draw", 1)
+				line.AssertCalled(t, "Draw", internal.Cell{
+					X:      10,
+					Y:      11,
+					Width:  90,
+					Height: 11,
+				}, props.Line{
+					Color: color.Color{
+						Red:   0,
+						Green: 0,
+						Blue:  0,
+					},
+					Style: consts.Dotted,
+					Width: 0.1,
+				})
+			},
+			func(m pdf.Maroto) {
+				m.Line(2.0, props.Line{
+					Style: consts.Dotted,
+				})
 			},
 		},
 	}
@@ -1331,16 +1996,17 @@ func TestFpdfMaroto_Line(t *testing.T) {
 	for _, c := range cases {
 		// Arrange
 		Fpdf := c.Fpdf()
+		line := c.Line()
 		math := baseMathTest()
 		tableList := baseTableList()
 
-		m := newMarotoTest(Fpdf, math, nil, nil, nil, nil, nil, tableList)
+		m := newMarotoTest(Fpdf, math, nil, nil, nil, nil, nil, tableList, line)
 
 		// Act
 		c.act(m)
 
 		// Assert
-		c.assert(t, Fpdf)
+		c.assert(t, Fpdf, line)
 	}
 }
 
@@ -1354,7 +2020,7 @@ func TestFpdfMaroto_ColSpace(t *testing.T) {
 			"One ColSpace inside one Row",
 			func(m pdf.Maroto) {
 				m.Row(40.0, func() {
-					m.ColSpace(48)
+					m.ColSpace(12)
 				})
 			},
 			func(t *testing.T, Fpdf *mocks.Fpdf) {
@@ -1366,8 +2032,8 @@ func TestFpdfMaroto_ColSpace(t *testing.T) {
 			"Two ColSpace inside one Row",
 			func(m pdf.Maroto) {
 				m.Row(40.0, func() {
-					m.ColSpace(20)
-					m.ColSpace(28)
+					m.ColSpace(5)
+					m.ColSpace(7)
 				})
 			},
 			func(t *testing.T, Fpdf *mocks.Fpdf) {
@@ -1380,10 +2046,10 @@ func TestFpdfMaroto_ColSpace(t *testing.T) {
 			"Two ColSpace inside two Rows",
 			func(m pdf.Maroto) {
 				m.Row(33.0, func() {
-					m.ColSpace(48)
+					m.ColSpace(12)
 				})
 				m.Row(35.0, func() {
-					m.ColSpace(48)
+					m.ColSpace(12)
 				})
 			},
 			func(t *testing.T, Fpdf *mocks.Fpdf) {
@@ -1397,7 +2063,7 @@ func TestFpdfMaroto_ColSpace(t *testing.T) {
 			func(m pdf.Maroto) {
 				m.SetBorder(true)
 				m.Row(23.0, func() {
-					m.ColSpace(48)
+					m.ColSpace(12)
 				})
 			},
 			func(t *testing.T, Fpdf *mocks.Fpdf) {
@@ -1413,7 +2079,7 @@ func TestFpdfMaroto_ColSpace(t *testing.T) {
 		math := baseMathTest()
 		tableList := baseTableList()
 
-		m := newMarotoTest(Fpdf, math, nil, nil, nil, nil, nil, tableList)
+		m := newMarotoTest(Fpdf, math, nil, nil, nil, nil, nil, tableList, nil)
 
 		// Act
 		c.act(m)
@@ -1504,7 +2170,7 @@ func TestFpdfMaroto_Output(t *testing.T) {
 		math := baseMathTest()
 		tableList := baseTableList()
 
-		m := newMarotoTest(Fpdf, math, nil, nil, nil, nil, nil, tableList)
+		m := newMarotoTest(Fpdf, math, nil, nil, nil, nil, nil, tableList, nil)
 		footerCalls := 0
 
 		// Act
@@ -1576,7 +2242,7 @@ func TestFpdfMaroto_OutputFileAndClose(t *testing.T) {
 		math := baseMathTest()
 		tableList := baseTableList()
 
-		m := newMarotoTest(Fpdf, math, nil, nil, nil, nil, nil, tableList)
+		m := newMarotoTest(Fpdf, math, nil, nil, nil, nil, nil, tableList, nil)
 
 		// Act
 		err := m.OutputFileAndClose("AnyName")
@@ -1588,7 +2254,9 @@ func TestFpdfMaroto_OutputFileAndClose(t *testing.T) {
 }
 
 func newMarotoTest(fFpdf *mocks.Fpdf, math *mocks.Math, font *mocks.Font, text *mocks.Text,
-	signature *mocks.Signature, image *mocks.Image, code *mocks.Code, tableList *mocks.TableList) pdf.Maroto {
+	signature *mocks.Signature, image *mocks.Image, code *mocks.Code, tableList *mocks.TableList,
+	line *mocks.Line,
+) pdf.Maroto {
 	m := &pdf.PdfMaroto{
 		Pdf:             fFpdf,
 		Math:            math,
@@ -1598,10 +2266,12 @@ func newMarotoTest(fFpdf *mocks.Fpdf, math *mocks.Math, font *mocks.Font, text *
 		Image:           image,
 		Code:            code,
 		TableListHelper: tableList,
+		LineHelper:      line,
 	}
 
 	m.SetDefaultFontFamily(consts.Arial)
 	m.SetBackgroundColor(color.NewWhite())
+	m.SetMaxGridSum(consts.DefaultMaxGridSum)
 
 	return m
 }
@@ -1610,14 +2280,23 @@ func baseFpdfTest(left, top, right float64) *mocks.Fpdf {
 	Fpdf := &mocks.Fpdf{}
 	Fpdf.On("GetPageSize").Return(100.0, 100.0)
 	Fpdf.On("GetMargins").Return(left, top, right, 0.0)
-	Fpdf.On("CellFormat", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+	Fpdf.On("CellFormat", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+		mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 	Fpdf.On("Ln", mock.Anything)
 	Fpdf.On("AliasNbPages", mock.Anything)
 	Fpdf.On("GetFontSize").Return(1.0, 1.0)
 	Fpdf.On("SetMargins", mock.AnythingOfType("float64"), mock.AnythingOfType("float64"), mock.AnythingOfType("float64"))
 	Fpdf.On("SetFillColor", mock.Anything, mock.Anything, mock.Anything)
 	Fpdf.On("AddUTF8Font", mock.Anything, mock.Anything, mock.Anything)
+	Fpdf.On("AddUTF8FontFromBytes", mock.Anything, mock.Anything, mock.Anything)
+	Fpdf.On("SetFontLocation", mock.Anything)
+	Fpdf.On("SetCompression", mock.Anything)
 	Fpdf.On("SetProtection", mock.Anything, mock.Anything, mock.Anything)
+	Fpdf.On("SetAuthor", mock.Anything, mock.Anything)
+	Fpdf.On("SetCreator", mock.Anything, mock.Anything)
+	Fpdf.On("SetSubject", mock.Anything, mock.Anything)
+	Fpdf.On("SetTitle", mock.Anything, mock.Anything)
+	Fpdf.On("SetCreationDate", mock.Anything)
 	return Fpdf
 }
 
@@ -1692,7 +2371,7 @@ func TestFpdfMaroto_RegisterFooter(t *testing.T) {
 				for _, content := range contents {
 					m.Row(20, func() {
 						for _, txt := range content {
-							m.Col(48, func() {
+							m.Col(12, func() {
 								m.Text(txt)
 							})
 						}
@@ -1726,7 +2405,7 @@ func TestFpdfMaroto_RegisterFooter(t *testing.T) {
 		tableList := baseTableList()
 		footerCalls := 0
 
-		m := newMarotoTest(Fpdf, math, font, text, nil, nil, nil, tableList)
+		m := newMarotoTest(Fpdf, math, font, text, nil, nil, nil, tableList, nil)
 
 		if c.hasFooter {
 			m.RegisterFooter(func() {
@@ -1767,7 +2446,7 @@ func TestFpdfMaroto_RegisterHeader(t *testing.T) {
 				headers, contents := getContents()
 				m.Row(20, func() {
 					for _, header := range headers {
-						m.Col(48, func() {
+						m.Col(12, func() {
 							m.Text(header)
 						})
 					}
@@ -1776,7 +2455,7 @@ func TestFpdfMaroto_RegisterHeader(t *testing.T) {
 				for _, content := range contents {
 					m.Row(20, func() {
 						for _, txt := range content {
-							m.Col(48, func() {
+							m.Col(12, func() {
 								m.Text(txt)
 							})
 						}
@@ -1811,7 +2490,7 @@ func TestFpdfMaroto_RegisterHeader(t *testing.T) {
 
 		headerCalls := 0
 
-		m := newMarotoTest(Fpdf, math, font, text, nil, nil, nil, tableList)
+		m := newMarotoTest(Fpdf, math, font, text, nil, nil, nil, tableList, nil)
 
 		if c.hasClosure {
 			m.RegisterHeader(func() {
@@ -1847,7 +2526,7 @@ func TestFpdfMaroto_GetCurrentPage(t *testing.T) {
 				headers, contents := getContents()
 				m.Row(20, func() {
 					for _, header := range headers {
-						m.Col(uint(48/len(headers)), func() {
+						m.Col(uint(12/len(headers)), func() {
 							m.Text(header)
 						})
 					}
@@ -1856,7 +2535,7 @@ func TestFpdfMaroto_GetCurrentPage(t *testing.T) {
 				for _, content := range contents {
 					m.Row(20, func() {
 						for _, txt := range content {
-							m.Col(uint(48/len(contents)), func() {
+							m.Col(uint(12/len(contents)), func() {
 								m.Text(txt)
 							})
 						}
@@ -1877,7 +2556,7 @@ func TestFpdfMaroto_GetCurrentPage(t *testing.T) {
 		font := baseFontTest()
 		tableList := baseTableList()
 
-		m := newMarotoTest(Fpdf, math, font, text, nil, nil, nil, tableList)
+		m := newMarotoTest(Fpdf, math, font, text, nil, nil, nil, tableList, nil)
 
 		// Act
 		c.act(m)
@@ -1896,7 +2575,7 @@ func TestFpdfMaroto_GetCurrentPage_WhenCreateOffsetIsZero(t *testing.T) {
 	font := baseFontTest()
 	tableList := baseTableList()
 
-	m := newMarotoTest(Fpdf, math, font, text, nil, nil, nil, tableList)
+	m := newMarotoTest(Fpdf, math, font, text, nil, nil, nil, tableList, nil)
 
 	// Act
 	offset := m.GetCurrentOffset()
@@ -1913,7 +2592,7 @@ func TestFpdfMaroto_GetCurrentPage_WhenIsNotZero(t *testing.T) {
 	font := baseFontTest()
 	tableList := baseTableList()
 
-	m := newMarotoTest(Fpdf, math, font, text, nil, nil, nil, tableList)
+	m := newMarotoTest(Fpdf, math, font, text, nil, nil, nil, tableList, nil)
 
 	m.Row(20, func() {
 		m.Col(0, func() {
@@ -1958,7 +2637,7 @@ func TestFpdfMaroto_SetPageMargins(t *testing.T) {
 		// Arrange
 		Fpdf := baseFpdfTest(12.3, 19.3, 0)
 
-		m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil)
+		m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
 
 		// Act
 		c.act(m)
@@ -1971,7 +2650,7 @@ func TestFpdfMaroto_SetPageMargins(t *testing.T) {
 func TestFpdfMaroto_SetBackgroundColor(t *testing.T) {
 	// Arrange
 	Fpdf := baseFpdfTest(12.3, 19.3, 0)
-	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil)
+	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
 	white := color.NewWhite()
 
 	// Act
@@ -1985,7 +2664,7 @@ func TestFpdfMaroto_SetBackgroundColor(t *testing.T) {
 func TestFpdfMaroto_GetPageMargins(t *testing.T) {
 	// Arrange
 	Fpdf := baseFpdfTest(12.3, 19.3, 0)
-	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil)
+	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
 
 	// Act
 	left, top, right, bottom := m.GetPageMargins()
@@ -2000,7 +2679,7 @@ func TestFpdfMaroto_GetPageMargins(t *testing.T) {
 func TestFpdfMaroto_AddPage(t *testing.T) {
 	// Arrange
 	Fpdf := baseFpdfTest(10.0, 10.0, 10.0)
-	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil)
+	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
 
 	// Act
 	m.AddPage()
@@ -2014,7 +2693,7 @@ func TestFpdfMaroto_AddPage(t *testing.T) {
 func TestPdfMaroto_AddUTF8Font(t *testing.T) {
 	// Arrange
 	Fpdf := baseFpdfTest(10.0, 10.0, 10.0)
-	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil)
+	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
 
 	// Act
 	m.AddUTF8Font("family", "style", "file")
@@ -2023,10 +2702,59 @@ func TestPdfMaroto_AddUTF8Font(t *testing.T) {
 	Fpdf.AssertCalled(t, "AddUTF8Font", "family", "style", "file")
 }
 
+func TestPdfMaroto_AddUTF8FontFromBytes(t *testing.T) {
+	// Arrange
+	Fpdf := baseFpdfTest(10.0, 10.0, 10.0)
+	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
+
+	// Act
+	m.AddUTF8FontFromBytes("family", "style", []byte("font-bytes"))
+
+	// Assert
+	Fpdf.AssertCalled(t, "AddUTF8FontFromBytes", "family", "style", []byte("font-bytes"))
+}
+
+func TestPdfMaroto_SetFontLocation(t *testing.T) {
+	// Arrange
+	Fpdf := baseFpdfTest(10.0, 10.0, 10.0)
+	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
+
+	// Act
+	m.SetFontLocation("/opt/fonts")
+
+	// Assert
+	Fpdf.AssertCalled(t, "SetFontLocation", "/opt/fonts")
+}
+
+func TestPdfMaroto_SetGetDefaultFontFamily(t *testing.T) {
+	// Arrange
+	Fpdf := baseFpdfTest(10.0, 10.0, 10.0)
+	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
+
+	// Act
+	m.SetDefaultFontFamily("family")
+	family := m.GetDefaultFontFamily()
+
+	// Assert
+	assert.Equal(t, family, "family")
+}
+
+func TestPdfMaroto_SetCompression(t *testing.T) {
+	// Arrange
+	Fpdf := baseFpdfTest(10.0, 10.0, 10.0)
+	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
+
+	// Act
+	m.SetCompression(false)
+
+	// Assert
+	Fpdf.AssertCalled(t, "SetCompression", false)
+}
+
 func TestPdfMaroto_SetProtection(t *testing.T) {
 	// Arrange
 	Fpdf := baseFpdfTest(10.0, 10.0, 10.0)
-	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil)
+	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
 
 	// Act
 	m.SetProtection(0, "userPassStr", "ownerPassStr")
@@ -2035,15 +2763,86 @@ func TestPdfMaroto_SetProtection(t *testing.T) {
 	Fpdf.AssertCalled(t, "SetProtection", byte(0), "userPassStr", "ownerPassStr")
 }
 
-func TestPdfMaroto_SetGetDefaultFontFamily(t *testing.T) {
+func TestPdfMaroto_SetAuthor(t *testing.T) {
 	// Arrange
 	Fpdf := baseFpdfTest(10.0, 10.0, 10.0)
-	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil)
+	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
 
 	// Act
-	m.SetDefaultFontFamily("family")
-	family := m.GetDefaultFontFamily()
+	m.SetAuthor("author", true)
 
 	// Assert
-	assert.Equal(t, family, "family")
+	Fpdf.AssertCalled(t, "SetAuthor", "author", true)
+}
+
+func TestPdfMaroto_SetCreator(t *testing.T) {
+	// Arrange
+	Fpdf := baseFpdfTest(10.0, 10.0, 10.0)
+	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
+
+	// Act
+	m.SetCreator("creator", true)
+
+	// Assert
+	Fpdf.AssertCalled(t, "SetCreator", "creator", true)
+}
+
+func TestPdfMaroto_SetSubject(t *testing.T) {
+	// Arrange
+	Fpdf := baseFpdfTest(10.0, 10.0, 10.0)
+	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
+
+	// Act
+	m.SetSubject("subject", true)
+
+	// Assert
+	Fpdf.AssertCalled(t, "SetSubject", "subject", true)
+}
+
+func TestPdfMaroto_SetTitle(t *testing.T) {
+	// Arrange
+	Fpdf := baseFpdfTest(10.0, 10.0, 10.0)
+	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
+
+	// Act
+	m.SetTitle("title", true)
+
+	// Assert
+	Fpdf.AssertCalled(t, "SetTitle", "title", true)
+}
+
+func TestPdfMaroto_SetCreationDate(t *testing.T) {
+	// Arrange
+	Fpdf := baseFpdfTest(10.0, 10.0, 10.0)
+	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
+	timeNow := time.Now()
+
+	// Act
+	m.SetCreationDate(timeNow)
+
+	// Assert
+	Fpdf.AssertCalled(t, "SetCreationDate", timeNow)
+}
+
+func TestPdfMaroto_SetMaxGridSum(t *testing.T) {
+	// Arrange
+	Fpdf := baseFpdfTest(10.0, 10.0, 10.0)
+	m := newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil, nil)
+
+	m.Row(2, func() {
+		m.Col(6, func() {})
+	})
+
+	// Assert
+	Fpdf.AssertCalled(t, "CellFormat", 40, 2, "", "", 0, "C", false, 0, "")
+
+	// Act
+	m.SetMaxGridSum(24)
+
+	m.Row(1, func() {
+		m.Col(6, func() {})
+	})
+
+	// Assert
+	Fpdf.AssertCalled(t, "CellFormat", 20, 1, "", "", 0, "C", false, 0, "")
 }

@@ -1,11 +1,13 @@
 package fpdf
 
 import (
-	"github.com/jung-kurt/gofpdf"
 	"io"
 	"time"
+
+	"github.com/jung-kurt/gofpdf"
 )
 
+// Fpdf is an extension of gofpdf interface which can expose more useful methods.
 type Fpdf interface {
 	AddFont(familyStr, styleStr, fileStr string)
 	AddFontFromBytes(familyStr, styleStr string, jsonFileBytes, zFileBytes []byte)
@@ -189,6 +191,7 @@ type fpdf struct {
 	Gofpdf *gofpdf.Fpdf
 }
 
+// NewWrapper is the constructor of the wrapper based on gofpdf interface.
 func NewWrapper(pdf *gofpdf.Fpdf) *fpdf {
 	return &fpdf{
 		Gofpdf: pdf,
@@ -203,12 +206,12 @@ func (s fpdf) AddUTF8Font(familyStr, styleStr, fileStr string) {
 	s.Gofpdf.AddUTF8Font(familyStr, styleStr, fileStr)
 }
 
-func (s fpdf) AddFontFromBytes(familyStr, styleStr string, jsonFileBytes, zFileBytes []byte) {
-	s.Gofpdf.AddFontFromBytes(familyStr, styleStr, jsonFileBytes, zFileBytes)
-}
-
 func (s fpdf) AddUTF8FontFromBytes(familyStr, styleStr string, utf8Bytes []byte) {
 	s.Gofpdf.AddUTF8FontFromBytes(familyStr, styleStr, utf8Bytes)
+}
+
+func (s fpdf) AddFontFromBytes(familyStr, styleStr string, jsonFileBytes, zFileBytes []byte) {
+	s.Gofpdf.AddFontFromBytes(familyStr, styleStr, jsonFileBytes, zFileBytes)
 }
 
 func (s fpdf) AddFontFromReader(familyStr, styleStr string, r io.Reader) {

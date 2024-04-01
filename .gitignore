@@ -18,3 +18,10 @@
 *.tmp
 
 *.ttf
+
+goreportcard
+
+# Ignore
+ignore.sh
+
+.vscode

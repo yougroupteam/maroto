@@ -1,10 +1,11 @@
 package props_test
 
 import (
+	"testing"
+
 	"github.com/johnfercher/maroto/pkg/consts"
 	"github.com/johnfercher/maroto/pkg/props"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestRectProp_MakeValid(t *testing.T) {
@@ -229,6 +230,24 @@ func TestText_MakeValid(t *testing.T) {
 			},
 		},
 		{
+			"When Left is less than 0, it should become 0",
+			&props.Text{
+				Left: -5.0,
+			},
+			func(t *testing.T, prop *props.Text) {
+				assert.Equal(t, prop.Left, 0.0)
+			},
+		},
+		{
+			"When Right is less than 0, it should become 0",
+			&props.Text{
+				Right: -5.0,
+			},
+			func(t *testing.T, prop *props.Text) {
+				assert.Equal(t, prop.Right, 0.0)
+			},
+		},
+		{
 			"When vertical padding is less than 0",
 			&props.Text{
 				VerticalPadding: -5.0,
@@ -396,6 +415,15 @@ func TestTableListProp_MakeValid(t *testing.T) {
 				assert.Equal(t, m.HeaderContentSpace, 4.0)
 			},
 		},
+		{
+			"When VerticalContentPadding is less than 0.0",
+			&props.TableList{
+				VerticalContentPadding: -4.0,
+			},
+			func(t *testing.T, m *props.TableList) {
+				assert.Equal(t, m.VerticalContentPadding, 0.0)
+			},
+		},
 	}
 
 	for _, c := range cases {
@@ -404,5 +432,49 @@ func TestTableListProp_MakeValid(t *testing.T) {
 
 		// Assert
 		c.assert(t, c.tableListProp)
+	}
+}
+
+func TestLine_MakeValid(t *testing.T) {
+	cases := []struct {
+		name        string
+		prop        *props.Line
+		spaceHeight float64
+		assert      func(t *testing.T, m *props.Line)
+	}{
+		{
+			"When style not defined must use solid",
+			&props.Line{},
+			1.0,
+			func(t *testing.T, m *props.Line) {
+				assert.Equal(t, m.Style, consts.Solid)
+			},
+		},
+		{
+			"When width not defined must use 0.1",
+			&props.Line{},
+			1.0,
+			func(t *testing.T, m *props.Line) {
+				assert.Equal(t, m.Width, 0.1)
+			},
+		},
+		{
+			"When width greater than space height",
+			&props.Line{
+				Width: 5.0,
+			},
+			1.0,
+			func(t *testing.T, m *props.Line) {
+				assert.Equal(t, m.Width, 1.0)
+			},
+		},
+	}
+
+	for _, c := range cases {
+		// Act
+		c.prop.MakeValid(c.spaceHeight)
+
+		// Assert
+		c.assert(t, c.prop)
 	}
 }
