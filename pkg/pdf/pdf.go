@@ -310,9 +310,6 @@ func (s *PdfMaroto) SetCustomBorder(on bool, sides string) {
 		s.borderSides = ""
 		return
 	}
-	if !(sides == "1" || sides == "L" || sides == "T" || sides == "R" || sides == "B") {
-		sides = "1"
-	}
 	s.borderSides = sides
 }
 
