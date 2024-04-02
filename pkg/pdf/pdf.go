@@ -306,11 +306,14 @@ func (s *PdfMaroto) SetBorder(on bool) {
 
 func (s *PdfMaroto) SetCustomBorder(on bool, sides string) {
 	s.debugMode = on
-
-	s.borderSides = sides
 	if !on {
 		s.borderSides = ""
+		return
 	}
+	if !(sides == "1" || sides == "L" || sides == "T" || sides == "R" || sides == "B") {
+		sides = "1"
+	}
+	s.borderSides = sides
 }
 
 // SetBackgroundColor define the background color of the PDF.
