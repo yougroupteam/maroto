@@ -46,6 +46,7 @@ type Maroto interface {
 	// Helpers
 	AddPage()
 	SetBorder(on bool)
+	SetCustomBorder(on bool, sides string)
 	SetBackgroundColor(color color.Color)
 	SetAliasNbPages(alias string)
 	SetFirstPageNb(number int)
@@ -98,6 +99,7 @@ type PdfMaroto struct {
 	calculationMode   bool
 	backgroundColor   color.Color
 	debugMode         bool
+	borderSides       string
 	orientation       consts.Orientation
 	pageSize          consts.PageSize
 	defaultFontFamily string
@@ -268,6 +270,15 @@ func (s *PdfMaroto) TableList(header []string, contents [][]string, prop ...prop
 // Draw borders in all columns created.
 func (s *PdfMaroto) SetBorder(on bool) {
 	s.debugMode = on
+}
+
+func (s *PdfMaroto) SetCustomBorder(on bool, sides string) {
+	s.debugMode = on
+
+	s.borderSides = sides
+	if !on {
+		s.borderSides = ""
+	}
 }
 
 // SetBackgroundColor define the background color of the PDF.
