@@ -640,6 +640,9 @@ func (s *PdfMaroto) createColSpace(actualWidthPerCol float64) {
 
 	if s.debugMode {
 		border = "1"
+		if s.borderSides != "" {
+			border = s.borderSides
+		}
 	}
 
 	s.Pdf.CellFormat(actualWidthPerCol, s.rowHeight, "", border, 0, "C", !s.backgroundColor.IsWhite(), 0, "")
