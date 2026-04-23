@@ -29,6 +29,7 @@ type Maroto interface {
 	// Outside Col/Row Components
 	TableList(header []string, contents [][]string, prop ...props.TableList)
 	Line(spaceHeight float64)
+	ColorLine(spaceHeight float64, lineColor color.Color)
 
 	// Inside Col/Row Components
 	Text(text string, prop ...props.Text)
@@ -338,6 +339,21 @@ func (s *PdfMaroto) Line(spaceHeight float64) {
 			s.Pdf.Line(left, s.offsetY+top+(spaceHeight/2.0), width-right, s.offsetY+top+(spaceHeight/2.0))
 		})
 	})
+}
+
+// ColorLine draws a full-width line with a custom stroke colour.
+// The draw colour is reset to black after the line is drawn.
+func (s *PdfMaroto) ColorLine(spaceHeight float64, lineColor color.Color) {
+	s.Pdf.SetDrawColor(lineColor.Red, lineColor.Green, lineColor.Blue)
+	s.Row(spaceHeight, func() {
+		s.Col(0, func() {
+			width, _ := s.Pdf.GetPageSize()
+			left, top, right, _ := s.Pdf.GetMargins()
+
+			s.Pdf.Line(left, s.offsetY+top+(spaceHeight/2.0), width-right, s.offsetY+top+(spaceHeight/2.0))
+		})
+	})
+	s.Pdf.SetDrawColor(0, 0, 0)
 }
 
 // InternalRow defines a row within a column.
