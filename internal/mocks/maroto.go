@@ -195,6 +195,11 @@ func (_m *Maroto) Line(spaceHeight float64) {
 	_m.Called(spaceHeight)
 }
 
+// ColorLine provides a mock function with given fields: spaceHeight, lineColor
+func (_m *Maroto) ColorLine(spaceHeight float64, lineColor color.Color) {
+	_m.Called(spaceHeight, lineColor)
+}
+
 // Output provides a mock function with given fields:
 func (_m *Maroto) Output() (bytes.Buffer, error) {
 	ret := _m.Called()
